@@ -1,3 +1,4 @@
+/*
 package org.easeport.itsupportsystem.model;
 
 import jakarta.persistence.Entity;
@@ -31,3 +32,4 @@ public class Ticket {
     private Priority priority;
 
 }
+*/
