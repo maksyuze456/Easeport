@@ -15,10 +15,6 @@ import org.easeport.itsupportsystem.model.ticketEnums.Queue;
 import org.easeport.itsupportsystem.model.ticketEnums.TicketType;
 
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class Ticket {
 
     @Id
