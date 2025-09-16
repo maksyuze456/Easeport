@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -28,6 +29,12 @@ public class User {
         this.username = username;
         this.password = password;
         this.email = email;
+    }
+    public User(String username, String password, Role role, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.role = role;
     }
 
     public Long getId() {

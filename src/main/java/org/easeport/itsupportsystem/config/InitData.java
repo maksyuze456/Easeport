@@ -21,13 +21,9 @@ public class InitData implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        User u1 = new User("maksyuze456", encoder.encode("fess36"), "maksyuze456@gmail.com");
-        userRepository.save(u1);
         if(userRepository.findByUsername("admin").isEmpty()) {
-            User admin = new User();
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin123"));
-            admin.setRole(Role.ADMIN);
+            User admin = new User("admin", passwordEncoder.encode("admin123"), Role.ADMIN, "admin@gmail.com");
+
             userRepository.save(admin);
         }
     }
