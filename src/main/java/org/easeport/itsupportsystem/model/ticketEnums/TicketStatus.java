@@ -1,5 +1,5 @@
 package org.easeport.itsupportsystem.model.ticketEnums;
 
-public enum Language {
-    en, da
+public enum TicketStatus {
+    Open, Reviewing, Closed
 }
