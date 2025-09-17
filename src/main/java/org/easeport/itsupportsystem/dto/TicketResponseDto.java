@@ -1,7 +1,9 @@
 package org.easeport.itsupportsystem.dto;
 
+import org.easeport.itsupportsystem.model.ticketEnums.*;
+
 public record TicketResponseDto(Long id, String subject, String body,
-                                String type, String queueType, String language,
-                                String priority, String ticketStatus, String answer,
+                                TicketType type, Queue queueType, Language language,
+                                Priority priority, TicketStatus ticketStatus, String answer,
                                 Long employeeId) {
 }

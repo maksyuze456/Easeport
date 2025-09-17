@@ -17,6 +17,7 @@ public class Ticket {
     @Column(nullable = false)
     private String body;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TicketType type;
 

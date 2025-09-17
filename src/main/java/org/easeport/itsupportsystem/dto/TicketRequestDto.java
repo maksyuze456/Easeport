@@ -1,6 +1,8 @@
 package org.easeport.itsupportsystem.dto;
 
+import org.easeport.itsupportsystem.model.ticketEnums.*;
+
 public record TicketRequestDto(String subject, String body,
-                               String type, String queueType, String language,
-                               String priority, String ticketStatus) {
+                               TicketType type, Queue queueType, Language language,
+                               Priority priority, TicketStatus ticketStatus) {
 }
