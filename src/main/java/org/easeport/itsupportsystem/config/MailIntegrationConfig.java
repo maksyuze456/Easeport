@@ -1,10 +1,8 @@
 package org.easeport.itsupportsystem.config;
 
-import jakarta.mail.Flags;
-import jakarta.mail.Session;
+import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.Authenticator;
-import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.search.FlagTerm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +12,7 @@ import org.springframework.integration.annotation.Poller;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.mail.ImapMailReceiver;
 import org.springframework.integration.mail.MailReceivingMessageSource;
+import org.springframework.messaging.Message;
 
 import java.util.Properties;
 
@@ -34,6 +33,11 @@ public class MailIntegrationConfig {
         props.setProperty("mail.imaps.host", "imap.gmail.com");
         props.setProperty("mail.imaps.port", "993");
         props.setProperty("mail.imaps.ssl.enable", "true");
+        props.setProperty("mail.imaps.connectionpoolsize", "10");
+        props.setProperty("mail.imaps.connectionpooltimeout", "300000");
+        props.setProperty("mail.imaps.fetchsize", "1048576"); // 1MB
+        props.setProperty("mail.imaps.partialfetch", "false"); // Fetch complete message
+        props.setProperty("mail.imaps.peek", "true"); // Don't mark as read while fetching
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -46,6 +50,7 @@ public class MailIntegrationConfig {
         receiver.setSession(session);
         receiver.setShouldDeleteMessages(false);
         receiver.setShouldMarkMessagesAsRead(true);
+        receiver.setSimpleContent(true);
         receiver.setSearchTermStrategy((folder, msg) -> new FlagTerm(new Flags(Flags.Flag.SEEN), false));
 
         return receiver;
@@ -61,9 +66,36 @@ public class MailIntegrationConfig {
 
     // Service Activator – process emails
     @ServiceActivator(inputChannel = "emailChannel")
-    public void processEmail(MimeMessage email) throws Exception {
+    public void processEmail(Message<MimeMessage> message) throws Exception {
+        MimeMessage email = message.getPayload();
+        Object emailContent = email.getContent();
+        String subject = email.getSubject();
+        String from = email.getFrom()[0].toString();
+        String content = "";
 
+        if (emailContent instanceof String) {
+            content = (String) emailContent;
+        } else if (emailContent instanceof MimeMultipart) {
+            content = extractTextFromMultipart((MimeMultipart) emailContent);
+        }
+        System.out.println("=== EMAIL RECEIVED ===");
+        System.out.println("Subject: " + subject);
+        System.out.println("From: " + from);
+        System.out.println("Content: " + content);
+        System.out.println("=====================");
 
 
     }
+
+    private String extractTextFromMultipart(MimeMultipart multipart) throws Exception{
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < multipart.getCount(); i++) {
+            BodyPart part = multipart.getBodyPart(i);
+            if (part.isMimeType("text/plain")) {
+                result.append(part.getContent());
+            }
+        }
+        return result.toString();
+    }
+
 }
