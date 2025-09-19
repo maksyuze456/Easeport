@@ -8,7 +8,7 @@ public class OpenAIConfig {
 
     @Value("${openai.api.key}")
     private String apiKey;
-    @Value("{openai.chat.model}")
+    @Value("${openai.chat.model}")
     private String model;
 
     public String getApiKey() {

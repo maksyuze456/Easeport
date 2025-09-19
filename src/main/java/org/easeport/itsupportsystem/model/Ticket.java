@@ -13,6 +13,10 @@ public class Ticket {
 
     @Column(nullable = false)
     private String subject;
+    @Column(nullable = false)
+    private String name;
+    @Column(nullable = false)
+    private String from;
 
     @Column(nullable = false)
     private String body;
@@ -42,9 +46,11 @@ public class Ticket {
     @JoinColumn(name = "employee_id", nullable = true)
     private User employee;
 
-    public Ticket(Long id, String subject, String body, TicketType type, Queue queueType, Language language, Priority priority, TicketStatus status, String answer, User employee) {
+    public Ticket(Long id, String subject, String name, String from, String body, TicketType type, Queue queueType, Language language, Priority priority, TicketStatus status, String answer, User employee) {
         this.id = id;
         this.subject = subject;
+        this.name = name;
+        this.from = from;
         this.body = body;
         this.type = type;
         this.queueType = queueType;
@@ -55,8 +61,10 @@ public class Ticket {
         this.employee = employee;
     }
 
-    public Ticket(String subject, String body, TicketType type, Queue queueType, Language language, Priority priority, TicketStatus status, String answer, User employee) {
+    public Ticket(String subject, String name, String from, String body, TicketType type, Queue queueType, Language language, Priority priority, TicketStatus status, String answer, User employee) {
         this.subject = subject;
+        this.name = name;
+        this.from = from;
         this.body = body;
         this.type = type;
         this.queueType = queueType;
@@ -69,6 +77,22 @@ public class Ticket {
 
     public Ticket() {
 
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public Long getId() {

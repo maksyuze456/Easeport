@@ -4,6 +4,8 @@ import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.search.FlagTerm;
+import org.easeport.itsupportsystem.model.mailRelated.RawEmail;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +17,8 @@ import org.springframework.integration.mail.MailReceivingMessageSource;
 import org.springframework.messaging.Message;
 
 import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @Configuration
 public class MailIntegrationConfig {
@@ -25,6 +29,13 @@ public class MailIntegrationConfig {
     @Value("${spring.mail.password}")
     private String password;
 
+    private final BlockingQueue<RawEmail> emailQueue;
+
+    public MailIntegrationConfig(BlockingQueue<RawEmail> emailQueue) {
+        this.emailQueue = emailQueue;
+    }
+
+
     // IMAP Mail Receiver - IMAP Client
     @Bean
     public ImapMailReceiver imapMailReceiver() {
@@ -33,7 +44,7 @@ public class MailIntegrationConfig {
         props.setProperty("mail.imaps.host", "imap.gmail.com");
         props.setProperty("mail.imaps.port", "993");
         props.setProperty("mail.imaps.ssl.enable", "true");
-        props.setProperty("mail.imaps.connectionpoolsize", "10");
+        props.setProperty("mail.imaps.connectionpoolsize", "1");
         props.setProperty("mail.imaps.connectionpooltimeout", "300000");
         props.setProperty("mail.imaps.fetchsize", "1048576"); // 1MB
         props.setProperty("mail.imaps.partialfetch", "false"); // Fetch complete message
@@ -83,7 +94,9 @@ public class MailIntegrationConfig {
         System.out.println("From: " + from);
         System.out.println("Content: " + content);
         System.out.println("=====================");
-
+        RawEmail rawEmail = new RawEmail(subject, from, content);
+        boolean pooled = emailQueue.offer(rawEmail);
+        System.out.println(pooled);
 
     }
 

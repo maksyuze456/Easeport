@@ -32,14 +32,14 @@ public class ChatGPTWebClientService {
         systemMessage.setRole("system");
         systemMessage.setContent(
                 "You are an AI assistant that categorizes support tickets. " +
-                        "For each ticket, extract the subject and body, and assign the best-fitting values for the following fields: " +
+                        "For each email, extract the subject, name and email (name and email is seen in field named `from`), body, and assign the best-fitting values for the following fields: " +
                         "type (Incident, Request, Problem, Change), " +
                         "queueType (Technical_Support, Returns_And_Exchanges, Billing_And_Payments, Sales_And_Pre_Sales, Service_Outages_And_Maintenance, Product_Support, It_Support, Customer_Service, Human_Resources, General_Inquiry), " +
                         "language (en or da), " +
                         "priority (High, Medium, Low), " +
                         "ticketStatus (always Open). " +
                         "Return the result strictly as a JSON object with the following exact fields: " +
-                        "`subject`, `body`, `type`, `queueType`, `language`, `priority`, `ticketStatus`. " +
+                        "`subject`, `name`, `from`, `body`, `type`, `queueType`, `language`, `priority`, `ticketStatus`. " +
                         "Do not include any extra text or explanation."
         );
 
@@ -47,13 +47,18 @@ public class ChatGPTWebClientService {
         request.setModel(config.getModel());
         request.setMessages(List.of(systemMessage, message));
 
-        return webClient.post()
+        System.out.println("=== REQUEST JSON ===");
+        System.out.println(mapper.writeValueAsString(request));
+
+        TicketRequestDto requestDto = webClient.post()
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .header(HttpHeaders.AUTHORIZATION,"Bearer " + config.getApiKey())
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(ChatResponse.class)
                 .map(chatResponse -> {
                     String json = chatResponse.getChoices().get(0).getMessage().getContent();
+                    System.out.println(json);
                     try {
                         TicketRequestDto ticketRequestDto = mapper.readValue(json, TicketRequestDto.class);
                         return ticketRequestDto;
@@ -62,7 +67,7 @@ public class ChatGPTWebClientService {
                     }
                 })
                 .block();
-
+        return requestDto;
     }
 
 }
