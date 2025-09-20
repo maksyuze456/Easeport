@@ -10,12 +10,11 @@ import org.easeport.itsupportsystem.model.aiRelated.ChatResponse;
 import org.easeport.itsupportsystem.model.mailRelated.RawEmail;
 import org.easeport.itsupportsystem.service.ChatGPTWebClientService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 
-import java.lang.reflect.Field;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,8 +76,6 @@ public class ChatGPTWebClientServiceTest {
 
         assertEquals("Login issue", requestDto.subject());
         assertEquals("John Doe", requestDto.name());
-
-
         assertEquals("Incident", requestDto.type().name());
         assertEquals("Technical_Support", requestDto.queueType().name());
         assertEquals("en", requestDto.language().name());
@@ -94,13 +91,8 @@ public class ChatGPTWebClientServiceTest {
     priority: High | %s
     ticketStatus: Open | %s
     """,
-                requestDto.subject(),
-                requestDto.name(),
-                requestDto.type().name(),
-                requestDto.queueType().name(),
-                requestDto.language().name(),
-                requestDto.priority().name(),
-                requestDto.ticketStatus().name()
+                requestDto.subject(), requestDto.name(), requestDto.type().name(), requestDto.queueType().name(),
+                requestDto.language().name(), requestDto.priority().name(), requestDto.ticketStatus().name()
         );
 
 
