@@ -3,6 +3,7 @@ package org.easeport.itsupportsystem.mappers;
 import org.easeport.itsupportsystem.dto.TicketRequestDto;
 import org.easeport.itsupportsystem.dto.TicketResponseDto;
 import org.easeport.itsupportsystem.model.Ticket;
+import org.easeport.itsupportsystem.model.User;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,9 +17,20 @@ public class TicketMapper {
     }
 
     public TicketResponseDto entityToResponseDto(Ticket ticket) {
-        TicketResponseDto responseDto = new TicketResponseDto(ticket.getId(), ticket.getSubject(), ticket.getName(), ticket.getFrom(), ticket.getBody(),
-                                                              ticket.getType(), ticket.getQueueType(), ticket.getLanguage(),
-                                                              ticket.getPriority(), ticket.getStatus(), ticket.getAnswer(), ticket.getEmployee().getId());
+        TicketResponseDto responseDto;
+        User user = ticket.getEmployee();
+
+        if (user != null) {
+            responseDto = new TicketResponseDto(ticket.getId(), ticket.getSubject(), ticket.getName(), ticket.getFrom(), ticket.getBody(),
+                    ticket.getType(), ticket.getQueueType(), ticket.getLanguage(),
+                    ticket.getPriority(), ticket.getStatus(), ticket.getAnswer(), ticket.getEmployee().getId());
+        } else {
+            responseDto = new TicketResponseDto(ticket.getId(), ticket.getSubject(), ticket.getName(), ticket.getFrom(), ticket.getBody(),
+                    ticket.getType(), ticket.getQueueType(), ticket.getLanguage(),
+                    ticket.getPriority(), ticket.getStatus(), ticket.getAnswer(), null);
+        }
+
+
         return responseDto;
     }
 
