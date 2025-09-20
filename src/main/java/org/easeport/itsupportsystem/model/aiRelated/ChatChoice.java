@@ -9,6 +9,10 @@ public class ChatChoice {
         this.message = message;
     }
 
+    public ChatChoice(ChatMessage message) {
+        this.message = message;
+    }
+
     public int getIndex() {
         return index;
     }
