@@ -23,8 +23,16 @@ public class AdminService {
 
     }
 
+    public User findByUsername(String username) throws Exception {
+        return userRepository.findByUsername(username).orElseThrow(Exception::new);
+    }
+
     public List<User> findAllByRoleUser() {
         return userRepository.findAllByRole(Role.USER).orElseThrow(Error::new);
+    }
+
+    public User updateUser(User user) {
+        return userRepository.save(user);
     }
 
 }
