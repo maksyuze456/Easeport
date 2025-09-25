@@ -6,6 +6,8 @@ import org.easeport.itsupportsystem.model.Ticket;
 import org.easeport.itsupportsystem.model.User;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class TicketMapper {
 
@@ -29,9 +31,13 @@ public class TicketMapper {
                     ticket.getType(), ticket.getQueueType(), ticket.getLanguage(),
                     ticket.getPriority(), ticket.getStatus(), ticket.getAnswer(), null);
         }
-
-
         return responseDto;
+    }
+
+    public List<TicketResponseDto> entityListToResponseDtoList(List<Ticket> ticketList) {
+        return ticketList.stream()
+                .map(this::entityToResponseDto)
+                .toList();
     }
 
 

@@ -1,7 +1,10 @@
 package org.easeport.itsupportsystem.config;
 
 import org.easeport.itsupportsystem.model.Role;
+import org.easeport.itsupportsystem.model.Ticket;
 import org.easeport.itsupportsystem.model.User;
+import org.easeport.itsupportsystem.model.ticketEnums.*;
+import org.easeport.itsupportsystem.repository.TicketRepository;
 import org.easeport.itsupportsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -9,11 +12,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Component
 public class InitData implements CommandLineRunner {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    TicketRepository ticketRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -34,5 +43,49 @@ public class InitData implements CommandLineRunner {
         userRepository.save(u2);
         userRepository.save(u3);
         userRepository.save(u4);
+
+        List<Ticket> tickets = Arrays.asList(
+                new Ticket("Printer not working", "Alice", "alice@example.com",
+                        "My office printer is not responding.", TicketType.Problem, Queue.It_Support,
+                        Language.en, Priority.Medium, TicketStatus.Open, null, null),
+
+                new Ticket("VPN issue", "Bob", "bob@example.com",
+                        "Unable to connect to the VPN.", TicketType.Problem, Queue.It_Support,
+                        Language.en, Priority.High, TicketStatus.Open, null, null),
+
+                new Ticket("Password reset", "Charlie", "charlie@example.com",
+                        "I forgot my password, please reset.", TicketType.Request, Queue.Service_Outages_And_Maintenance,
+                        Language.en, Priority.Low, TicketStatus.Open, null, null),
+
+                new Ticket("Email not syncing", "Diana", "diana@example.com",
+                        "Outlook is not syncing with the server.", TicketType.Incident, Queue.It_Support,
+                        Language.en, Priority.High, TicketStatus.Open, null, null),
+
+                new Ticket("Software installation", "Ethan", "ethan@example.com",
+                        "Need Adobe Photoshop installed.", TicketType.Request, Queue.Service_Outages_And_Maintenance,
+                        Language.en, Priority.Medium, TicketStatus.Open, null, null),
+
+                new Ticket("Laptop overheating", "Fiona", "fiona@example.com",
+                        "My laptop gets too hot after 10 minutes.", TicketType.Incident, Queue.It_Support,
+                        Language.en, Priority.High, TicketStatus.Open, null, null),
+
+                new Ticket("New account setup", "George", "george@example.com",
+                        "Please create a new user account for HR intern.", TicketType.Request, Queue.Service_Outages_And_Maintenance,
+                        Language.en, Priority.Medium, TicketStatus.Open, null, null),
+
+                new Ticket("Slow WiFi", "Helen", "helen@example.com",
+                        "WiFi connection is very slow in the meeting room.", TicketType.Incident, Queue.It_Support,
+                        Language.en, Priority.Medium, TicketStatus.Open, null, null),
+
+                new Ticket("Access denied", "Ian", "ian@example.com",
+                        "Cannot access the shared drive.", TicketType.Incident, Queue.It_Support,
+                        Language.en, Priority.High, TicketStatus.Open, null, null),
+
+                new Ticket("Request new monitor", "Jane", "jane@example.com",
+                        "I need a second monitor for productivity.", TicketType.Request, Queue.Service_Outages_And_Maintenance,
+                        Language.en, Priority.Low, TicketStatus.Open, null, null)
+        );
+
+        ticketRepository.saveAll(tickets);
     }
 }

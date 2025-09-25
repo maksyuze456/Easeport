@@ -15,7 +15,8 @@ public class Ticket {
     private String subject;
     @Column(nullable = false)
     private String name;
-    @Column(nullable = false)
+
+    @Column(name = "sender", nullable = false)
     private String from;
 
     @Column(nullable = false)
