@@ -14,7 +14,7 @@ public class TicketMapper {
     public Ticket requestDtoToEntity(TicketRequestDto requestDto) {
         Ticket ticket = new Ticket(requestDto.subject(), requestDto.name(), requestDto.from(), requestDto.body(), requestDto.type(),
                                     requestDto.queueType(), requestDto.language(), requestDto.priority(),
-                                    requestDto.ticketStatus(), null, null);
+                                    requestDto.ticketStatus(), null, null, requestDto.messageId());
         return ticket;
     }
 

@@ -58,7 +58,8 @@ public class ChatGPTWebClientServiceTest {
               "queueType": "Technical_Support",
               "language": "en",
               "priority": "High",
-              "ticketStatus": "Open"
+              "ticketStatus": "Open",
+              "messageId": "1"
             }
             """;
 
@@ -70,7 +71,7 @@ public class ChatGPTWebClientServiceTest {
 
         ChatGPTWebClientService service = new ChatGPTWebClientService(webClient, config);
 
-        RawEmail rawEmail = new RawEmail("Login issue", "John Doe", "I can't log in to my account");
+        RawEmail rawEmail = new RawEmail("Login issue", "John Doe", "I can't log in to my account", "1");
 
         TicketRequestDto requestDto = service.processTicket(rawEmail);
 
@@ -81,6 +82,7 @@ public class ChatGPTWebClientServiceTest {
         assertEquals("en", requestDto.language().name());
         assertEquals("High", requestDto.priority().name());
         assertEquals("Open", requestDto.ticketStatus().name());
+        assertEquals("1", requestDto.messageId());
         System.out.printf("""
     Expected vs Actual:
     subject: Login issue | %s
@@ -90,9 +92,10 @@ public class ChatGPTWebClientServiceTest {
     language: en | %s
     priority: High | %s
     ticketStatus: Open | %s
+    messageId: 1 | %s
     """,
                 requestDto.subject(), requestDto.name(), requestDto.type().name(), requestDto.queueType().name(),
-                requestDto.language().name(), requestDto.priority().name(), requestDto.ticketStatus().name()
+                requestDto.language().name(), requestDto.priority().name(), requestDto.ticketStatus().name(), requestDto.messageId()
         );
 
 

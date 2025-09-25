@@ -30,7 +30,8 @@ public class TicketMapperTest {
                 Queue.Technical_Support,
                 Language.en,
                 Priority.High,
-                TicketStatus.Open
+                TicketStatus.Open,
+                "1"
         );
         Ticket ticket = ticketMapper.requestDtoToEntity(requestDto);
 
@@ -43,6 +44,7 @@ public class TicketMapperTest {
     language: en | %s
     priority: High | %s
     ticketStatus: Open | %s
+    messageId: 1 | %s
     """,
                 ticket.getSubject(),
                 ticket.getName(),
@@ -50,7 +52,8 @@ public class TicketMapperTest {
                 ticket.getQueueType(),
                 ticket.getLanguage(),
                 ticket.getPriority(),
-                ticket.getStatus()
+                ticket.getStatus(),
+                ticket.getMessageId()
         );
         assertEquals("Incident", ticket.getType().name());
         assertEquals("Technical_Support", ticket.getQueueType().name());

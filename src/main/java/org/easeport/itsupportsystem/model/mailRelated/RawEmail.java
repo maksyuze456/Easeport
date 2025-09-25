@@ -4,11 +4,21 @@ public class RawEmail {
     private String subject;
     private String from;
     private String content;
+    private String messageId;
 
-    public RawEmail(String subject, String from, String content) {
+    public RawEmail(String subject, String from, String content, String messageId) {
         this.subject = subject;
         this.from = from;
         this.content = content;
+        this.messageId = messageId;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public RawEmail() {

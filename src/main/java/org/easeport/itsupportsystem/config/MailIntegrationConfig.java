@@ -70,7 +70,7 @@ public class MailIntegrationConfig {
 
     // MailReceivingMessageSource (Inbound Adapter)
     @Bean
-    @InboundChannelAdapter(channel = "emailChannel", poller = @Poller(fixedDelay = "30000"))
+    @InboundChannelAdapter(channel = "emailChannel", poller = @Poller(fixedDelay = "1000"))
     public MailReceivingMessageSource mailMessageSource(ImapMailReceiver receiver) {
         return new MailReceivingMessageSource(receiver);
     }
@@ -82,6 +82,7 @@ public class MailIntegrationConfig {
         Object emailContent = email.getContent();
         String subject = email.getSubject();
         String from = email.getFrom()[0].toString();
+        String messageId = email.getMessageID();
         String content = "";
 
         if (emailContent instanceof String) {
@@ -93,8 +94,9 @@ public class MailIntegrationConfig {
         System.out.println("Subject: " + subject);
         System.out.println("From: " + from);
         System.out.println("Content: " + content);
+        System.out.println("Message ID: " + messageId);
         System.out.println("=====================");
-        RawEmail rawEmail = new RawEmail(subject, from, content);
+        RawEmail rawEmail = new RawEmail(subject, from, content, messageId);
         boolean pooled = emailQueue.offer(rawEmail);
         System.out.println(pooled);
 

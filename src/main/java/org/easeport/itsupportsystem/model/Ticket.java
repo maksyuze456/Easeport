@@ -47,6 +47,9 @@ public class Ticket {
     @JoinColumn(name = "employee_id", nullable = true)
     private User employee;
 
+    @Column(nullable = true)
+    private String messageId;
+
     public Ticket(Long id, String subject, String name, String from, String body, TicketType type, Queue queueType, Language language, Priority priority, TicketStatus status, String answer, User employee) {
         this.id = id;
         this.subject = subject;
@@ -76,8 +79,31 @@ public class Ticket {
         this.employee = employee;
     }
 
+    public Ticket(String subject, String name, String from, String body, TicketType type, Queue queueType, Language language, Priority priority, TicketStatus status, String answer, User employee, String messageId) {
+        this.subject = subject;
+        this.name = name;
+        this.from = from;
+        this.body = body;
+        this.type = type;
+        this.queueType = queueType;
+        this.language = language;
+        this.priority = priority;
+        this.status = status;
+        this.answer = answer;
+        this.employee = employee;
+        this.messageId = messageId;
+    }
+
     public Ticket() {
 
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public String getName() {
