@@ -3,6 +3,7 @@ package org.easeport.itsupportsystem.service;
 import org.easeport.itsupportsystem.dto.AnswerDto;
 import org.easeport.itsupportsystem.dto.TicketRequestDto;
 import org.easeport.itsupportsystem.dto.TicketResponseDto;
+import org.easeport.itsupportsystem.exception.TicketHasNoAssignedUserException;
 import org.easeport.itsupportsystem.exception.TicketNotFoundException;
 import org.easeport.itsupportsystem.exception.UserNotAssignedException;
 import org.easeport.itsupportsystem.mappers.TicketMapper;
@@ -30,7 +31,8 @@ public class TicketService {
 
         Ticket ticket = ticketMapper.requestDtoToEntity(requestDto);
 
-        return ticketMapper.entityToResponseDto(ticketRepository.save(ticket));
+        Ticket savedTicket = ticketRepository.save(ticket);
+        return ticketMapper.entityToResponseDto(savedTicket);
     }
 
     public Ticket findById(Long ticketId) {
@@ -41,18 +43,23 @@ public class TicketService {
         Ticket ticket = findById(ticketId);
         User userAssignedToTicket = ticket.getEmployee();
         if (userAssignedToTicket == null) {
-            throw new UserNotAssignedException(user.getUsername(), ticketId);
+            throw new TicketHasNoAssignedUserException(ticketId);
         }
         if (!userAssignedToTicket.getId().equals(user.getId())) throw new UserNotAssignedException(user.getUsername(), ticketId);
 
         ticket.setAnswer(answerDto.getMessage());
-        return ticketMapper.entityToResponseDto(ticketRepository.save(ticket));
+
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        TicketResponseDto responseDto = ticketMapper.entityToResponseDto(updatedTicket);
+
+        return responseDto;
     }
 
-    public TicketResponseDto assignUserToTicket(Ticket ticket, User user) {
-        ticket.setEmployee(user);
-        ticket.setStatus(TicketStatus.Reviewing);
-        Ticket updatedTicket = ticketRepository.save(ticket);
+    public TicketResponseDto assignUserToTicket(Long ticketId, User user) {
+        Ticket ticketToAssign = findById(ticketId);
+        ticketToAssign.setEmployee(user);
+        ticketToAssign.setStatus(TicketStatus.Reviewing);
+        Ticket updatedTicket = ticketRepository.save(ticketToAssign);
         return ticketMapper.entityToResponseDto(updatedTicket);
     }
 
@@ -66,13 +73,14 @@ public class TicketService {
             Ticket ticket = findById(ticketId);
             User userAssignedToTicket = ticket.getEmployee();
             if (userAssignedToTicket == null) {
-                throw new UserNotAssignedException(user.getUsername(), ticketId);
+                throw new TicketHasNoAssignedUserException(ticketId);
             }
             if (!userAssignedToTicket.getId().equals(user.getId())) throw new UserNotAssignedException(user.getUsername(), ticketId);
 
             ticket.setStatus(TicketStatus.Closed);
-            emailSenderService.sendMail(ticketRepository.save(ticket));
-        } catch (TicketNotFoundException | UserNotAssignedException e) {
+            Ticket updatedTicket = ticketRepository.save(ticket);
+            emailSenderService.sendMail(updatedTicket);
+        } catch (TicketNotFoundException | UserNotAssignedException | TicketHasNoAssignedUserException e) {
             throw e;
         }
     }

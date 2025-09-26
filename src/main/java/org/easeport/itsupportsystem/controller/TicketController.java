@@ -3,6 +3,8 @@ package org.easeport.itsupportsystem.controller;
 import jakarta.websocket.server.PathParam;
 import org.apache.coyote.Response;
 import org.easeport.itsupportsystem.dto.AnswerDto;
+import org.easeport.itsupportsystem.dto.TicketResponseDto;
+import org.easeport.itsupportsystem.exception.TicketHasNoAssignedUserException;
 import org.easeport.itsupportsystem.exception.TicketNotFoundException;
 import org.easeport.itsupportsystem.exception.UserNotAssignedException;
 import org.easeport.itsupportsystem.exception.UserNotFoundException;
@@ -40,11 +42,11 @@ public class TicketController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> assignTicket(@PathVariable("ticketId") Long ticketId, Authentication authentication) {
         try {
-            Ticket ticketToAssign = ticketService.findById(ticketId);
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             String username = userPrincipal.getUsername();
             User user = userService.findByUsername(username);
-            return new ResponseEntity<>(ticketService.assignUserToTicket(ticketToAssign, user), HttpStatus.OK);
+            TicketResponseDto updatedTicket = ticketService.assignUserToTicket(ticketId, user);
+            return new ResponseEntity<>(updatedTicket, HttpStatus.OK);
 
         } catch (TicketNotFoundException | UserNotFoundException e) {
             return ResponseEntity.badRequest()
@@ -92,7 +94,8 @@ public class TicketController {
 
             return ResponseEntity.ok()
                     .body(new MessageResponse("Ticket is successfully closed and sent."));
-        } catch(TicketNotFoundException | UserNotFoundException | UserNotAssignedException e) {
+        } catch(TicketNotFoundException | UserNotFoundException | UserNotAssignedException |
+                TicketHasNoAssignedUserException e) {
             return ResponseEntity.badRequest()
                     .body(new MessageResponse(e.getMessage()));
         }

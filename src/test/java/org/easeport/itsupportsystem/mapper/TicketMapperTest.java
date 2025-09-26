@@ -7,9 +7,15 @@ import org.easeport.itsupportsystem.model.Ticket;
 import org.easeport.itsupportsystem.model.User;
 import org.easeport.itsupportsystem.model.ticketEnums.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 public class TicketMapperTest {
 
@@ -121,5 +127,38 @@ public class TicketMapperTest {
         assertEquals(3L, responseDto.employeeId());
     }
 
+    @Test
+    void entityListToResponseDtoList_checkIfListIsProduced() {
+        List<Ticket> tickets = Arrays.asList(
+                new Ticket("Printer not working", "Alice", "alice@example.com",
+                        "My office printer is not responding.", TicketType.Problem, Queue.It_Support,
+                        Language.en, Priority.Medium, TicketStatus.Open, null, null),
 
+                new Ticket("VPN issue", "Bob", "bob@example.com",
+                        "Unable to connect to the VPN.", TicketType.Problem, Queue.It_Support,
+                        Language.en, Priority.High, TicketStatus.Open, null, null),
+
+                new Ticket("Password reset", "Charlie", "charlie@example.com",
+                        "I forgot my password, please reset.", TicketType.Request, Queue.Service_Outages_And_Maintenance,
+                        Language.en, Priority.Low, TicketStatus.Open, null, null)
+        );
+
+        List<TicketResponseDto> ticketResponseDtoList = ticketMapper.entityListToResponseDtoList(tickets);
+
+        assertEquals(ticketResponseDtoList.get(1).name(), "Bob");
+        assertEquals(ticketResponseDtoList.get(0).getClass(), TicketResponseDto.class);
+
+    }
+
+    @Test
+    void entityListToResponseDtoList_ShouldReturnEmptyListIfEmptyListPassed() {
+
+        List<Ticket> tickets = Collections.emptyList();
+
+        List<TicketResponseDto> ticketResponseDtoList = ticketMapper.entityListToResponseDtoList(tickets);
+
+        assertEquals(Collections.emptyList(), ticketResponseDtoList);
+
+
+    }
 }
