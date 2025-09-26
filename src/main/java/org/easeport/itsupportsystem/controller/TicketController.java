@@ -82,4 +82,20 @@ public class TicketController {
                 body(ticketService.getAllTicketsByStatus(status));
     }
 
+    @PutMapping("/close/{ticketId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> closeAndSendTicket(@PathVariable("ticketId") Long ticketId, Authentication authentication) {
+        try {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            User user = userService.findByUsername(userPrincipal.getUsername());
+            ticketService.closeTicket(ticketId, user);
+
+            return ResponseEntity.ok()
+                    .body(new MessageResponse("Ticket is successfully closed and sent."));
+        } catch(TicketNotFoundException | UserNotFoundException | UserNotAssignedException e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse(e.getMessage()));
+        }
+    }
+
 }

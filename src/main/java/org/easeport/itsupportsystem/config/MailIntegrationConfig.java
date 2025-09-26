@@ -29,6 +29,19 @@ public class MailIntegrationConfig {
     @Value("${spring.mail.password}")
     private String password;
 
+    // SMTP
+    @Value("${spring.mail.smtp.host}")
+    private String smtpHost;
+
+    @Value("${spring.mail.smtp.port}")
+    private String smtpPort;
+
+    @Value("${spring.mail.smtp.username}")
+    private String smtpUsername;
+
+    @Value("${spring.mail.smtp.password}")
+    private String smtpPassword;
+
     private final BlockingQueue<RawEmail> emailQueue;
 
     public MailIntegrationConfig(BlockingQueue<RawEmail> emailQueue) {
@@ -66,6 +79,25 @@ public class MailIntegrationConfig {
 
         return receiver;
     }
+    @Bean("smtpSession")
+    public Session smtpSession() {
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", smtpHost);
+        props.put("mail.smtp.port", smtpPort);
+        props.put("mail.smtp.ssl.trust", smtpHost);
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+
+        return Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(smtpUsername, smtpPassword);
+            }
+        });
+
+    }
+
 
 
     // MailReceivingMessageSource (Inbound Adapter)

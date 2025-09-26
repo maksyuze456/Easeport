@@ -22,7 +22,8 @@ public class TicketService {
     TicketRepository ticketRepository;
     @Autowired
     TicketMapper ticketMapper;
-
+    @Autowired
+    EmailSenderService emailSenderService;
 
 
     public TicketResponseDto addTicket(TicketRequestDto requestDto) {
@@ -59,6 +60,23 @@ public class TicketService {
         List<Ticket> ticketList = ticketRepository.findAllByStatus(status);
         return ticketMapper.entityListToResponseDtoList(ticketList);
     }
+
+    public void closeTicket(Long ticketId, User user) {
+        try {
+            Ticket ticket = findById(ticketId);
+            User userAssignedToTicket = ticket.getEmployee();
+            if (userAssignedToTicket == null) {
+                throw new UserNotAssignedException(user.getUsername(), ticketId);
+            }
+            if (!userAssignedToTicket.getId().equals(user.getId())) throw new UserNotAssignedException(user.getUsername(), ticketId);
+
+            ticket.setStatus(TicketStatus.Closed);
+            emailSenderService.sendMail(ticketRepository.save(ticket));
+        } catch (TicketNotFoundException | UserNotAssignedException e) {
+            throw e;
+        }
+    }
+
 
 
 
