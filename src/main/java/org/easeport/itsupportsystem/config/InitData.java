@@ -7,6 +7,7 @@ import org.easeport.itsupportsystem.model.ticketEnums.*;
 import org.easeport.itsupportsystem.repository.TicketRepository;
 import org.easeport.itsupportsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,11 +28,20 @@ public class InitData implements CommandLineRunner {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Value("${admin.username}")
+    String adminUsername;
+
+    @Value("${admin.pass}")
+    String adminPassword;
+
+    @Value("${admin.email}")
+    String adminEmail;
+
     @Override
     public void run(String... args) throws Exception {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if(userRepository.findByUsername("admin").isEmpty()) {
-            User admin = new User("admin", passwordEncoder.encode("admin123"), Role.ADMIN, "admin@gmail.com");
+            User admin = new User(adminUsername, passwordEncoder.encode(adminPassword), Role.ADMIN, adminEmail);
 
             userRepository.save(admin);
         }
