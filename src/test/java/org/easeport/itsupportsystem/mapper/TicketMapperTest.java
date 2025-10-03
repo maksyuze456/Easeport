@@ -93,7 +93,7 @@ public class TicketMapperTest {
                         answer: null | %s
                         employeeId: null | %s
                         """, responseDto.id(), responseDto.subject(), responseDto.name(), responseDto.type(), responseDto.queueType(),
-                             responseDto.language(), responseDto.priority(), responseDto.ticketStatus(), responseDto.answer(), responseDto.employeeId()
+                             responseDto.language(), responseDto.priority(), responseDto.status(), responseDto.answer(), responseDto.employeeId()
         );
         assertEquals("Incident", responseDto.type().name());
         assertEquals("Technical_Support", responseDto.queueType().name());

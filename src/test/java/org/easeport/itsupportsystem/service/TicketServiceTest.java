@@ -180,7 +180,7 @@ public class TicketServiceTest {
 
         TicketResponseDto responseDto = ticketService.assignUserToTicket(2L, user);
 
-        assertEquals(responseDto.ticketStatus(), TicketStatus.Reviewing);
+        assertEquals(responseDto.status(), TicketStatus.Reviewing);
         assertEquals(responseDto.employeeId(), 1L);
     }
 

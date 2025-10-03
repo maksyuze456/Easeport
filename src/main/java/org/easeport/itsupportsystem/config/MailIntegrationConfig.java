@@ -75,7 +75,6 @@ public class MailIntegrationConfig {
         receiver.setShouldDeleteMessages(false);
         receiver.setShouldMarkMessagesAsRead(true);
         receiver.setSimpleContent(true);
-        receiver.setSearchTermStrategy((folder, msg) -> new FlagTerm(new Flags(Flags.Flag.SEEN), false));
 
         return receiver;
     }
@@ -102,7 +101,7 @@ public class MailIntegrationConfig {
 
     // MailReceivingMessageSource (Inbound Adapter)
     @Bean
-    @InboundChannelAdapter(channel = "emailChannel", poller = @Poller(fixedDelay = "1000"))
+    @InboundChannelAdapter(channel = "emailChannel", poller = @Poller(fixedDelay = "3000"))
     public MailReceivingMessageSource mailMessageSource(ImapMailReceiver receiver) {
         return new MailReceivingMessageSource(receiver);
     }

@@ -4,6 +4,6 @@ import org.easeport.itsupportsystem.model.ticketEnums.*;
 
 public record TicketResponseDto(Long id, String subject, String name, String from, String body,
                                 TicketType type, Queue queueType, Language language,
-                                Priority priority, TicketStatus ticketStatus, String answer,
+                                Priority priority, TicketStatus status, String answer,
                                 Long employeeId) {
 }

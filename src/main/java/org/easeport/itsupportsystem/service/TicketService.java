@@ -68,6 +68,11 @@ public class TicketService {
         return ticketMapper.entityListToResponseDtoList(ticketList);
     }
 
+    public List<TicketResponseDto> getAllTicketsByStatusAndEmployeeId(TicketStatus status, Long id) {
+        List<Ticket> ticketList = ticketRepository.findAllByStatusAndEmployeeId(status, id);
+        return ticketMapper.entityListToResponseDtoList(ticketList);
+    }
+
     public void closeTicket(Long ticketId, User user) {
         try {
             Ticket ticket = findById(ticketId);

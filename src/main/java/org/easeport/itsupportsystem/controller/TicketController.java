@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -61,8 +62,10 @@ public class TicketController {
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             User user = userService.findByUsername(userPrincipal.getUsername());
 
+            TicketResponseDto updatedTicket = ticketService.setAnswer(ticketId, user, answerDto);
+
             return ResponseEntity.ok()
-                    .body(ticketService.setAnswer(ticketId, user, answerDto));
+                    .body(new MessageResponse("Answer is set!"));
 
         }  catch (TicketNotFoundException | UserNotFoundException | UserNotAssignedException e) {
             return ResponseEntity.badRequest()
@@ -82,6 +85,40 @@ public class TicketController {
 
         return ResponseEntity.ok().
                 body(ticketService.getAllTicketsByStatus(status));
+    }
+
+    @GetMapping("/{ticketId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getTicketById(@PathVariable("ticketId") Long id) {
+        try {
+            Ticket ticket = ticketService.findById(id);
+
+            return ResponseEntity.ok()
+                    .body(ticket);
+
+        } catch(TicketNotFoundException e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+
+    @GetMapping("/employeeTickets")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getAllTicketsByStatusAndEmployeeId(@RequestParam("status") TicketStatus status, Authentication authentication) {
+        try {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            User user = userService.findByUsername(userPrincipal.getUsername());
+
+            List<TicketResponseDto> ticketList = ticketService.getAllTicketsByStatusAndEmployeeId(status, user.getId());
+
+            return ResponseEntity.ok()
+                    .body(ticketList);
+
+        } catch(UserNotFoundException e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse(e.getMessage()));
+        }
     }
 
     @PutMapping("/close/{ticketId}")
