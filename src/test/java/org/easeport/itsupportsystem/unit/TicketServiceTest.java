@@ -1,4 +1,4 @@
-package org.easeport.itsupportsystem.service;
+package org.easeport.itsupportsystem.unit;
 
 import org.easeport.itsupportsystem.dto.AnswerDto;
 import org.easeport.itsupportsystem.dto.TicketRequestDto;
@@ -10,6 +10,8 @@ import org.easeport.itsupportsystem.model.Ticket;
 import org.easeport.itsupportsystem.model.User;
 import org.easeport.itsupportsystem.model.ticketEnums.*;
 import org.easeport.itsupportsystem.repository.TicketRepository;
+import org.easeport.itsupportsystem.service.EmailSenderService;
+import org.easeport.itsupportsystem.service.TicketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

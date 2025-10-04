@@ -1,4 +1,4 @@
-package org.easeport.itsupportsystem.mapper;
+package org.easeport.itsupportsystem.unit;
 
 import org.easeport.itsupportsystem.dto.TicketRequestDto;
 import org.easeport.itsupportsystem.dto.TicketResponseDto;

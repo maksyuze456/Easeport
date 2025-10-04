@@ -1,8 +1,9 @@
-package org.easeport.itsupportsystem.service;
+package org.easeport.itsupportsystem.unit;
 
 import org.easeport.itsupportsystem.model.Role;
 import org.easeport.itsupportsystem.model.User;
 import org.easeport.itsupportsystem.repository.UserRepository;
+import org.easeport.itsupportsystem.service.AdminService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
