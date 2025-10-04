@@ -22,7 +22,7 @@ public class TicketService {
     @Autowired
     TicketRepository ticketRepository;
     @Autowired
-    TicketMapper ticketMapper;
+    public TicketMapper ticketMapper;
     @Autowired
     EmailSenderService emailSenderService;
 

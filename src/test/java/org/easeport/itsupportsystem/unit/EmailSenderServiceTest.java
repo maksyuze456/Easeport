@@ -1,10 +1,11 @@
-package org.easeport.itsupportsystem.service;
+package org.easeport.itsupportsystem.unit;
 
 import jakarta.mail.Message;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.MimeMessage;
 import org.easeport.itsupportsystem.model.Ticket;
+import org.easeport.itsupportsystem.service.EmailSenderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
