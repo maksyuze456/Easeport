@@ -32,7 +32,7 @@ public class ChatGPTWebClientService {
         systemMessage.setRole("system");
         systemMessage.setContent(
                 "You are an AI assistant that categorizes support tickets. " +
-                        "For each email, extract the subject, name and email (name and email is seen in field named `from`), body, and messageId (including the <>) and assign the best-fitting values for the following fields: " +
+                        "For each email, extract the subject, name and email (name and email is seen in field named `from` which includes name and mail, extract mail from <> brackets), body, and messageId (including the <>) and assign the best-fitting values for the following fields: " +
                         "type (Incident, Request, Problem, Change), " +
                         "queueType (Technical_Support, Returns_And_Exchanges, Billing_And_Payments, Sales_And_Pre_Sales, Service_Outages_And_Maintenance, Product_Support, It_Support, Customer_Service, Human_Resources, General_Inquiry), " +
                         "language (en or da), " +
