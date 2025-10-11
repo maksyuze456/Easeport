@@ -1,16 +1,29 @@
 package org.easeport.itsupportsystem.model.mailRelated;
 
+import java.time.LocalDateTime;
+
 public class RawEmail {
     private String subject;
     private String from;
     private String content;
     private String messageId;
 
-    public RawEmail(String subject, String from, String content, String messageId) {
+    private LocalDateTime localDateTime;
+
+    public RawEmail(String subject, String from, String content, String messageId, LocalDateTime localDateTime) {
         this.subject = subject;
         this.from = from;
         this.content = content;
         this.messageId = messageId;
+        this.localDateTime = localDateTime;
+    }
+
+    public LocalDateTime getLocalDateTime() {
+        return localDateTime;
+    }
+
+    public void setLocalDateTime(LocalDateTime localDateTime) {
+        this.localDateTime = localDateTime;
     }
 
     public String getMessageId() {

@@ -14,7 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,7 +71,7 @@ public class ChatGPTWebClientServiceTest {
 
         ChatGPTWebClientService service = new ChatGPTWebClientService(webClient, config);
 
-        RawEmail rawEmail = new RawEmail("Login issue", "John Doe", "I can't log in to my account", "1");
+        RawEmail rawEmail = new RawEmail("Login issue", "John Doe", "I can't log in to my account", "1", LocalDateTime.now());
 
         TicketRequestDto requestDto = service.processTicket(rawEmail);
 

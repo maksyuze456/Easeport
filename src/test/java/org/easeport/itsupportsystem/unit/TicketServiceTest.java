@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -255,7 +256,7 @@ public class TicketServiceTest {
 
         TicketRequestDto ticketRequestDto = new TicketRequestDto("VPN issue", "Bob",
                 "bob@example.com", "Unable to connect to VPN", TicketType.Problem, Queue.It_Support,
-                Language.en, Priority.High, TicketStatus.Open, "<TestMessageId>");
+                Language.en, Priority.High, TicketStatus.Open, "<TestMessageId>", LocalDateTime.now());
 
         Ticket ticket = ticketMapper.requestDtoToEntity(ticketRequestDto);
 

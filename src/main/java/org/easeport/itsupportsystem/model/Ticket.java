@@ -3,6 +3,8 @@ package org.easeport.itsupportsystem.model;
 import jakarta.persistence.*;
 import org.easeport.itsupportsystem.model.ticketEnums.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "tickets")
 public class Ticket {
@@ -50,6 +52,15 @@ public class Ticket {
     @Column(nullable = true)
     private String messageId;
 
+    @Column(name = "created_at", nullable = true)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = true)
+    private LocalDateTime updatedAt;
+
+    @Column(name = "closed_at", nullable = true)
+    private LocalDateTime closedAt;
+
     public Ticket(Long id, String subject, String name, String from, String body, TicketType type, Queue queueType, Language language, Priority priority, TicketStatus status, String answer, User employee) {
         this.id = id;
         this.subject = subject;
@@ -79,7 +90,7 @@ public class Ticket {
         this.employee = employee;
     }
 
-    public Ticket(String subject, String name, String from, String body, TicketType type, Queue queueType, Language language, Priority priority, TicketStatus status, String answer, User employee, String messageId) {
+    public Ticket(String subject, String name, String from, String body, TicketType type, Queue queueType, Language language, Priority priority, TicketStatus status, String answer, User employee, String messageId, LocalDateTime createdAt) {
         this.subject = subject;
         this.name = name;
         this.from = from;
@@ -92,10 +103,27 @@ public class Ticket {
         this.answer = answer;
         this.employee = employee;
         this.messageId = messageId;
+        this.createdAt = createdAt;
     }
 
     public Ticket() {
 
+    }
+
+    public LocalDateTime getClosedAt() {
+        return closedAt;
+    }
+
+    public void setClosedAt(LocalDateTime closedAt) {
+        this.closedAt = closedAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public String getMessageId() {
@@ -200,5 +228,13 @@ public class Ticket {
 
     public void setEmployee(User employee) {
         this.employee = employee;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

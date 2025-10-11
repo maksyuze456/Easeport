@@ -47,7 +47,8 @@ public class TicketController {
             String username = userPrincipal.getUsername();
             User user = userService.findByUsername(username);
             TicketResponseDto updatedTicket = ticketService.assignUserToTicket(ticketId, user);
-            return new ResponseEntity<>(updatedTicket, HttpStatus.OK);
+            return ResponseEntity.ok()
+                    .body(new MessageResponse("User is assigned!"));
 
         } catch (TicketNotFoundException | UserNotFoundException e) {
             return ResponseEntity.badRequest()
@@ -91,7 +92,7 @@ public class TicketController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getTicketById(@PathVariable("ticketId") Long id) {
         try {
-            Ticket ticket = ticketService.findById(id);
+            TicketResponseDto ticket = ticketService.getTicketResponseDtoById(id);
 
             return ResponseEntity.ok()
                     .body(ticket);
