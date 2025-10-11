@@ -12,6 +12,9 @@ import org.springframework.integration.mail.ImapIdleChannelAdapter;
 import org.springframework.integration.mail.ImapMailReceiver;
 import org.springframework.messaging.Message;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 
@@ -113,6 +116,11 @@ public class MailIntegrationConfig {
         Object emailContent = email.getContent();
         String subject = email.getSubject();
         String from = email.getFrom()[0].toString();
+        Date date = email.getReceivedDate();
+        LocalDateTime localDateTime = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
         String messageId = email.getMessageID();
         String content = "";
 
@@ -125,9 +133,10 @@ public class MailIntegrationConfig {
         System.out.println("Subject: " + subject);
         System.out.println("From: " + from);
         System.out.println("Content: " + content);
+        System.out.println("Time: " + localDateTime.toString());
         System.out.println("Message ID: " + messageId);
         System.out.println("=====================");
-        RawEmail rawEmail = new RawEmail(subject, from, content, messageId);
+        RawEmail rawEmail = new RawEmail(subject, from, content, messageId, localDateTime);
         boolean pooled = emailQueue.offer(rawEmail);
         System.out.println(pooled);
 

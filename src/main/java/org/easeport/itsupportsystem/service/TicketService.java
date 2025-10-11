@@ -14,6 +14,8 @@ import org.easeport.itsupportsystem.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -39,6 +41,12 @@ public class TicketService {
         return ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException(ticketId));
     }
 
+    public TicketResponseDto getTicketResponseDtoById(Long ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException(ticketId));
+        TicketResponseDto responseDto = ticketMapper.entityToResponseDto(ticket);
+        return responseDto;
+    }
+
     public TicketResponseDto setAnswer(Long ticketId, User user, AnswerDto answerDto) {
         Ticket ticket = findById(ticketId);
         User userAssignedToTicket = ticket.getEmployee();
@@ -46,7 +54,8 @@ public class TicketService {
             throw new TicketHasNoAssignedUserException(ticketId);
         }
         if (!userAssignedToTicket.getId().equals(user.getId())) throw new UserNotAssignedException(user.getUsername(), ticketId);
-
+        LocalDateTime updatedAt = LocalDateTime.now(ZoneId.systemDefault());
+        ticket.setUpdatedAt(updatedAt);
         ticket.setAnswer(answerDto.getMessage());
 
         Ticket updatedTicket = ticketRepository.save(ticket);
@@ -59,6 +68,8 @@ public class TicketService {
         Ticket ticketToAssign = findById(ticketId);
         ticketToAssign.setEmployee(user);
         ticketToAssign.setStatus(TicketStatus.Reviewing);
+        LocalDateTime updatedAt = LocalDateTime.now(ZoneId.systemDefault());
+        ticketToAssign.setUpdatedAt(updatedAt);
         Ticket updatedTicket = ticketRepository.save(ticketToAssign);
         return ticketMapper.entityToResponseDto(updatedTicket);
     }
@@ -83,6 +94,8 @@ public class TicketService {
             if (!userAssignedToTicket.getId().equals(user.getId())) throw new UserNotAssignedException(user.getUsername(), ticketId);
 
             ticket.setStatus(TicketStatus.Closed);
+            LocalDateTime closedAt = LocalDateTime.now(ZoneId.systemDefault());
+            ticket.setClosedAt(closedAt);
             Ticket updatedTicket = ticketRepository.save(ticket);
             emailSenderService.sendMail(updatedTicket);
         } catch (TicketNotFoundException | UserNotAssignedException | TicketHasNoAssignedUserException e) {

@@ -9,6 +9,8 @@ import org.easeport.itsupportsystem.model.ticketEnums.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +39,8 @@ public class TicketMapperTest {
                 Language.en,
                 Priority.High,
                 TicketStatus.Open,
-                "1"
+                "1",
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
         );
         Ticket ticket = ticketMapper.requestDtoToEntity(requestDto);
 
@@ -51,6 +54,7 @@ public class TicketMapperTest {
     priority: High | %s
     ticketStatus: Open | %s
     messageId: 1 | %s
+    createdAt: format | %s
     """,
                 ticket.getSubject(),
                 ticket.getName(),
@@ -59,7 +63,8 @@ public class TicketMapperTest {
                 ticket.getLanguage(),
                 ticket.getPriority(),
                 ticket.getStatus(),
-                ticket.getMessageId()
+                ticket.getMessageId(),
+                ticket.getCreatedAt()
         );
         assertEquals("Incident", ticket.getType().name());
         assertEquals("Technical_Support", ticket.getQueueType().name());
