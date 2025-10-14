@@ -15,8 +15,7 @@ services:
       - "8080:8080"
     env_file: .env
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     networks:
       - dev-network
     command: mvn spring-boot:run
@@ -30,11 +29,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
         - dev-network
 volumes:
