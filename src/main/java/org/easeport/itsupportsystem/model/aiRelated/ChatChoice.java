@@ -9,6 +9,9 @@ public class ChatChoice {
         this.message = message;
     }
 
+    public ChatChoice() {
+    }
+
     public ChatChoice(ChatMessage message) {
         this.message = message;
     }

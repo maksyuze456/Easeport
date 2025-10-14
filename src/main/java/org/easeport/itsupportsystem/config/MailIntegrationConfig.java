@@ -3,22 +3,20 @@ package org.easeport.itsupportsystem.config;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
-import jakarta.mail.search.FlagTerm;
 import org.easeport.itsupportsystem.model.mailRelated.RawEmail;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.InboundChannelAdapter;
-import org.springframework.integration.annotation.Poller;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.mail.ImapIdleChannelAdapter;
 import org.springframework.integration.mail.ImapMailReceiver;
-import org.springframework.integration.mail.MailReceivingMessageSource;
 import org.springframework.messaging.Message;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 @Configuration
 public class MailIntegrationConfig {
@@ -58,7 +56,7 @@ public class MailIntegrationConfig {
         props.setProperty("mail.imaps.port", "993");
         props.setProperty("mail.imaps.ssl.enable", "true");
         props.setProperty("mail.imaps.connectionpoolsize", "1");
-        props.setProperty("mail.imaps.connectionpooltimeout", "300000");
+        props.setProperty("mail.imaps.connectionpooltimeout", "100000");
         props.setProperty("mail.imaps.fetchsize", "1048576"); // 1MB
         props.setProperty("mail.imaps.partialfetch", "false"); // Fetch complete message
         props.setProperty("mail.imaps.peek", "true"); // Don't mark as read while fetching
@@ -75,10 +73,21 @@ public class MailIntegrationConfig {
         receiver.setShouldDeleteMessages(false);
         receiver.setShouldMarkMessagesAsRead(true);
         receiver.setSimpleContent(true);
-        receiver.setSearchTermStrategy((folder, msg) -> new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+        receiver.setAutoCloseFolder(true);
 
         return receiver;
     }
+
+    @Bean
+    public ImapIdleChannelAdapter imapIdleAdapter(ImapMailReceiver receiver) {
+        ImapIdleChannelAdapter adapter = new ImapIdleChannelAdapter(receiver);
+        adapter.setOutputChannelName("emailChannel");
+        adapter.setAutoStartup(true);
+        adapter.setShouldReconnectAutomatically(true);
+
+        return adapter;
+    }
+
     @Bean("smtpSession")
     public Session smtpSession() {
         Properties props = new Properties();
@@ -100,13 +109,6 @@ public class MailIntegrationConfig {
 
 
 
-    // MailReceivingMessageSource (Inbound Adapter)
-    @Bean
-    @InboundChannelAdapter(channel = "emailChannel", poller = @Poller(fixedDelay = "1000"))
-    public MailReceivingMessageSource mailMessageSource(ImapMailReceiver receiver) {
-        return new MailReceivingMessageSource(receiver);
-    }
-
     // Service Activator – process emails
     @ServiceActivator(inputChannel = "emailChannel")
     public void processEmail(Message<MimeMessage> message) throws Exception {
@@ -114,6 +116,11 @@ public class MailIntegrationConfig {
         Object emailContent = email.getContent();
         String subject = email.getSubject();
         String from = email.getFrom()[0].toString();
+        Date date = email.getReceivedDate();
+        LocalDateTime localDateTime = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
         String messageId = email.getMessageID();
         String content = "";
 
@@ -126,9 +133,10 @@ public class MailIntegrationConfig {
         System.out.println("Subject: " + subject);
         System.out.println("From: " + from);
         System.out.println("Content: " + content);
+        System.out.println("Time: " + localDateTime.toString());
         System.out.println("Message ID: " + messageId);
         System.out.println("=====================");
-        RawEmail rawEmail = new RawEmail(subject, from, content, messageId);
+        RawEmail rawEmail = new RawEmail(subject, from, content, messageId, localDateTime);
         boolean pooled = emailQueue.offer(rawEmail);
         System.out.println(pooled);
 

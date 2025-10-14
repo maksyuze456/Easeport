@@ -2,6 +2,8 @@ package org.easeport.itsupportsystem.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.easeport.itsupportsystem.config.OpenAIConfig;
 import org.easeport.itsupportsystem.dto.TicketRequestDto;
 import org.easeport.itsupportsystem.model.aiRelated.ChatMessage;
@@ -27,19 +29,21 @@ public class ChatGPTWebClientService {
 
     public TicketRequestDto processTicket(RawEmail rawEmail) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         ChatMessage message = new ChatMessage("user", mapper.writeValueAsString(rawEmail));
         ChatMessage systemMessage = new ChatMessage();
         systemMessage.setRole("system");
         systemMessage.setContent(
                 "You are an AI assistant that categorizes support tickets. " +
-                        "For each email, extract the subject, name and email (name and email is seen in field named `from`), body, and assign the best-fitting values for the following fields: " +
+                        "For each email, extract the subject, name and email (name and email is seen in field named `from` which includes name and mail, extract mail from <> brackets), body, messageId (including the <>), and localDateTime, and assign the best-fitting values for the following fields: " +
                         "type (Incident, Request, Problem, Change), " +
                         "queueType (Technical_Support, Returns_And_Exchanges, Billing_And_Payments, Sales_And_Pre_Sales, Service_Outages_And_Maintenance, Product_Support, It_Support, Customer_Service, Human_Resources, General_Inquiry), " +
                         "language (en or da), " +
                         "priority (High, Medium, Low), " +
                         "ticketStatus (always Open). " +
                         "Return the result strictly as a JSON object with the following exact fields: " +
-                        "`subject`, `name`, `from`, `body`, `type`, `queueType`, `language`, `priority`, `ticketStatus`. " +
+                        "`subject`, `name`, `from`, `body`, `type`, `queueType`, `language`, `priority`, `ticketStatus`. `messageId`, `createdAt` " +
                         "Do not include any extra text or explanation."
         );
 

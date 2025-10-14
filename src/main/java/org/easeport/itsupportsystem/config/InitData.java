@@ -89,11 +89,8 @@ public class InitData implements CommandLineRunner {
 
                 new Ticket("Access denied", "Ian", "ian@example.com",
                         "Cannot access the shared drive.", TicketType.Incident, Queue.It_Support,
-                        Language.en, Priority.High, TicketStatus.Open, null, null),
+                        Language.en, Priority.High, TicketStatus.Open, null, null)
 
-                new Ticket("Request new monitor", "Jane", "jane@example.com",
-                        "I need a second monitor for productivity.", TicketType.Request, Queue.Service_Outages_And_Maintenance,
-                        Language.en, Priority.Low, TicketStatus.Open, null, null)
         );
 
         ticketRepository.saveAll(tickets);
