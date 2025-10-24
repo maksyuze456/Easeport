@@ -1,8 +1,8 @@
-name: Spring Boot CI
+name: Spring Boot CD
 
 on:
-  pull_request:
-    branches: [develop]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -101,3 +101,36 @@ jobs:
         with:
           name: integration-test-results
           path: target/surefire-reports/
+  # Deploy
+
+  deploy:
+    name: Deploy on Hetzner VM (build on host)
+    runs-on: ubuntu-latest
+    needs: [ integration-tests ]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Copy Docker Compose files
+        run: |
+          scp -o StrictHostKeyChecking=no -r . ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/app/
+
+      - name: Build & Deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+          cd ~/app
+          docker compose down
+          docker compose build
+          docker compose up -d
+          docker system prune -f
+          EOF
