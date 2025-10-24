@@ -9,6 +9,7 @@ import org.easeport.itsupportsystem.exception.UserNotAssignedException;
 import org.easeport.itsupportsystem.mappers.TicketMapper;
 import org.easeport.itsupportsystem.model.Ticket;
 import org.easeport.itsupportsystem.model.User;
+import org.easeport.itsupportsystem.model.mailRelated.TicketMessage;
 import org.easeport.itsupportsystem.model.ticketEnums.TicketStatus;
 import org.easeport.itsupportsystem.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,10 @@ public class TicketService {
     TicketRepository ticketRepository;
     @Autowired
     public TicketMapper ticketMapper;
+
+    @Autowired
+    TicketMessageService ticketMessageService;
+
     @Autowired
     EmailSenderService emailSenderService;
 
@@ -34,6 +39,16 @@ public class TicketService {
         Ticket ticket = ticketMapper.requestDtoToEntity(requestDto);
 
         Ticket savedTicket = ticketRepository.save(ticket);
+
+
+        String messageId = savedTicket.getMessageId();
+        System.out.println("MessageId: " + messageId);
+
+
+
+        TicketMessage ticketMessage = new TicketMessage(savedTicket.getId(), savedTicket.getFrom(), savedTicket.getBody(), savedTicket.getCreatedAt(), null, messageId);
+        ticketMessageService.saveFirstMessage(ticketMessage);
+
         return ticketMapper.entityToResponseDto(savedTicket);
     }
 
@@ -101,9 +116,13 @@ public class TicketService {
         } catch (TicketNotFoundException | UserNotAssignedException | TicketHasNoAssignedUserException e) {
             throw e;
         }
+
+
     }
 
-
+    public Ticket findByMessageId(String inReplyTo) {
+        return ticketRepository.findByMessageId(inReplyTo);
+    }
 
 
 }
