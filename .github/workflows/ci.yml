@@ -118,6 +118,10 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+        
       - name: Copy Docker Compose files
         run: |
           scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/app/
