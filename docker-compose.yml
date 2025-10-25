@@ -3,11 +3,8 @@ version: "3.8"
 services:
   spring-app:
     image: maven:3.9-eclipse-temurin-21
-    container_name: easeport-dev
+    container_name: easeport-prod
     working_dir: /app
-    volumes:
-      - .:/app  # local code into container
-      - ~/.m2:/root/.m2  # cache Maven dependencies
     ports:
       - "8080:8080"
     env_file: .env
