@@ -29,7 +29,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/tickets")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true", maxAge = 3600)
+@CrossOrigin(origins = "${allowed.origin}", allowCredentials = "true", maxAge = 3600)
 public class TicketController {
 
     @Autowired

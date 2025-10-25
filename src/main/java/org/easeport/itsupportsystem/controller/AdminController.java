@@ -8,6 +8,7 @@ import org.easeport.itsupportsystem.security.dto.UpdateUserRequest;
 import org.easeport.itsupportsystem.security.security_entity.UserPrincipal;
 import org.easeport.itsupportsystem.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,7 +21,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true", maxAge = 3600)
+@CrossOrigin(origins = "${allowed.origin}", allowCredentials = "true", maxAge = 3600)
 public class AdminController {
 
     @Autowired
@@ -28,6 +29,7 @@ public class AdminController {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
 
     @PostMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")

@@ -4,6 +4,7 @@ import org.easeport.itsupportsystem.security.filters.AuthTokenFilter;
 import org.easeport.itsupportsystem.security.security_entity.AuthEntryPointJwt;
 import org.easeport.itsupportsystem.security.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,6 +35,9 @@ public class WebSecurityConfig {
     @Autowired
     AuthEntryPointJwt unauthorizedHandler;
 
+    @Value("${allowed.origin}")
+    String allowedOrigin;
+
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() { return new AuthTokenFilter(); }
 
@@ -60,7 +64,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000")); // frontend origin
+        config.setAllowedOrigins(List.of(allowedOrigin)); // frontend origin
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowCredentials(true); // important for cookies
         config.setAllowedHeaders(List.of("*")); // allow all headers

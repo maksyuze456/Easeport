@@ -110,7 +110,6 @@ jobs:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
     needs: [ integration-tests ]
-    if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
       - uses: actions/checkout@v4
@@ -134,10 +133,9 @@ jobs:
             ${{ secrets.IMAGE_NAME }}:${{ github.ref_name }}
 
   deploy:
-    name: Deploy on Hetzner VM (build on host)
+    name: Deploy on Hetzner VM
     runs-on: ubuntu-latest
     needs: [ integration-tests, docker-image ]
-    if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
       - name: Checkout code
