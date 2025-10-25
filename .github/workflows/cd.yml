@@ -2,7 +2,10 @@ name: Spring Boot CD
 
 on:
   push:
-    branches: [main]
+    tags:
+      - 'v*'
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -128,7 +131,7 @@ jobs:
           push: true
           tags: |
             ${{ secrets.IMAGE_NAME }}:latest
-            ${{ secrets.IMAGE_NAME }}:${{ github.sha }}
+            ${{ secrets.IMAGE_NAME }}:${{ github.ref_name }}
 
   deploy:
     name: Deploy on Hetzner VM (build on host)
