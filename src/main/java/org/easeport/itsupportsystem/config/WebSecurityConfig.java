@@ -66,7 +66,8 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(allowedOrigin)); // frontend origin
+        List<String> listOrigins = Arrays.asList(allowedOrigin.split(","));
+        config.setAllowedOrigins(listOrigins); // frontend origin
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowCredentials(true); // important for cookies
         config.setAllowedHeaders(List.of("*")); // allow all headers
