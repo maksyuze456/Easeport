@@ -62,7 +62,7 @@ public class AuthController {
         UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
 
         ResponseCookie cookie = ResponseCookie.from("token", jwt)
-                .domain(".easeport.org")
+                .domain("easeport.org")
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)// HTTPS
