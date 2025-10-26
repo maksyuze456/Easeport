@@ -66,7 +66,7 @@ public class AuthController {
                 .secure(true) // HTTPS
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 days
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
 
