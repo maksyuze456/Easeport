@@ -64,7 +64,7 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie.from("token", jwt)
                 .domain("easeport.org")
                 .httpOnly(true)
-                .secure(false) // HTTPS
+                .secure(true) // HTTPS
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 days
                 .sameSite("None")
