@@ -63,7 +63,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("token", jwt)
                 .httpOnly(true)
-                .secure(false) // set to true in production (HTTPS)
+                .secure(true) // HTTPS
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 days
                 .sameSite("Lax")
@@ -79,7 +79,7 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
-                .secure(true) // set to true in production
+                .secure(true)
                 .path("/")
                 .maxAge(0) // expires immediately
                 .build();
