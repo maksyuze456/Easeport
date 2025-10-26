@@ -71,9 +71,11 @@ public class AuthController {
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getUsername(),
-                userDetails.getEmail()));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-store, no-cache, must-revalidate")
+                .body(new JwtResponse(jwt,
+                        userDetails.getUsername(),
+                        userDetails.getEmail()));
     }
 
     @PostMapping("/logout")
