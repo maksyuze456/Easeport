@@ -159,6 +159,6 @@ jobs:
           cd ~/springapp
           docker-compose -p easeport_backend -f docker-compose.yml down
           docker compose pull
-          docker compose up -d
+          docker-compose -p easeport_backend -f docker-compose.yml up -d
           docker system prune -f
           EOF
