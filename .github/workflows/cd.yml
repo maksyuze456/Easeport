@@ -156,8 +156,8 @@ jobs:
       - name: Build & Deploy
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-          cd ~/app
-          docker compose down
+          cd ~/springapp
+          docker-compose -p easeport_backend -f docker-compose.yml down
           docker compose pull
           docker compose up -d
           docker system prune -f
