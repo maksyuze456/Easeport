@@ -80,6 +80,8 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        System.out.println("=== SECURITY CONFIG LOADED ===");
+        System.out.println("Allowed origins: " + Arrays.asList(Arrays.toString(allowedOrigin.split(","))));
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
