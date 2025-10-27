@@ -151,7 +151,7 @@ jobs:
 
       - name: Copy Docker Compose files
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.yml .env ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/app/
+          scp -o StrictHostKeyChecking=no docker-compose.yml .env ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/springapp/
 
       - name: Build & Deploy
         run: |

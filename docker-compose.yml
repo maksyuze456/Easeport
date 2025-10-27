@@ -2,16 +2,14 @@ version: "3.8"
 
 services:
   spring-app:
-    image: maksyuze456/easeport:v0.1.1
+    image: maksyuze456/easeport:latest
     container_name: easeport-prod
     working_dir: /app
     ports:
-      - "8443:8443"
+      - "8080:8080"
     env_file: .env
     depends_on:
       - mysql
-    volumes:
-      - /opt/certs/easeport/origin.p12:/etc/ssl/easeport/origin.p12:ro
     command: mvn spring-boot:run
 
   mysql:
