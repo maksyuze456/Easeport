@@ -10,6 +10,8 @@ services:
     env_file: .env
     depends_on:
       - mysql
+    volumes:
+      - /opt/certs/easeport/origin.p12:/etc/ssl/easeport/origin.p12:ro
     command: mvn spring-boot:run
 
   mysql:
