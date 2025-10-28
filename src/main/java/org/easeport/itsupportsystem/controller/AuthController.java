@@ -63,14 +63,13 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("token", jwt)
                 .httpOnly(true)
-                .secure(false)// HTTPS
+                .secure(true)// HTTPS
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 days
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
 
         return ResponseEntity.ok()
-                .header("Cache-Control", "no-store, no-cache, must-revalidate")
                 .body(new JwtResponse(jwt,
                         userDetails.getUsername(),
                         userDetails.getEmail()));
