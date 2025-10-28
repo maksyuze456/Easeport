@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   spring-app:
-    image: maksyuze456/easeport:latest
+    image: maksyuze456/easeport:production
     container_name: easeport-prod
     working_dir: /app
     ports:
