@@ -1,0 +1,91 @@
+package org.easeport.itsupportsystem.controller;
+
+import org.easeport.itsupportsystem.model.Role;
+import org.easeport.itsupportsystem.model.User;
+import org.easeport.itsupportsystem.security.dto.CreateUserRequest;
+import org.easeport.itsupportsystem.security.dto.MessageResponse;
+import org.easeport.itsupportsystem.security.dto.UpdateUserRequest;
+import org.easeport.itsupportsystem.security.security_entity.UserPrincipal;
+import org.easeport.itsupportsystem.service.AdminService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/admin")
+@CrossOrigin(origins = "${allowed.origin}", allowCredentials = "true", maxAge = 3600)
+public class AdminController {
+
+    @Autowired
+    AdminService adminService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+
+    @PostMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<User> createUser(@RequestBody CreateUserRequest request) {
+
+        User user = new User(request.getUsername(), passwordEncoder.encode(request.getPassword()), request.getEmail());
+        user.setRole(Role.USER);
+
+        User savedUser = adminService.createUser(user);
+
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllEmployees() {
+        try {
+            List<User> employees = adminService.findAllByRoleUser();
+            return new ResponseEntity<>(employees, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Could not fetch users", HttpStatus.NOT_FOUND);
+        }
+
+    }
+    @PutMapping("/users/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest updateUserRequest) {
+        try{
+            User userToUpdate = adminService.findByUsername(updateUserRequest.username());
+            if (updateUserRequest.password()!=null) {
+                userToUpdate.setPassword(passwordEncoder.encode(updateUserRequest.password()));
+            }
+            userToUpdate.setEmail(updateUserRequest.email());
+            userToUpdate.setRole(updateUserRequest.role());
+            adminService.updateUser(userToUpdate);
+            return new ResponseEntity<>(new MessageResponse("User is updated."), HttpStatus.OK);
+        } catch(Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: User " + updateUserRequest.username() + " is not found"));
+        }
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+
+
+        return ResponseEntity.ok(Map.of(
+                "username", user.getUsername(),
+                "email", user.getEmail()
+        ));
+    }
+
+}
