@@ -47,7 +47,7 @@ public class TicketService {
 
 
         TicketMessage ticketMessage = new TicketMessage(savedTicket.getId(), savedTicket.getFrom(), savedTicket.getBody(), savedTicket.getCreatedAt(), null, messageId);
-        ticketMessageService.saveFirstMessage(ticketMessage);
+        ticketMessageService.saveMessage(ticketMessage);
 
         return ticketMapper.entityToResponseDto(savedTicket);
     }
@@ -125,4 +125,36 @@ public class TicketService {
     }
 
 
+    public boolean sendAnswer(User user, Long ticketId, Long ticketMessageId) {
+        TicketMessage ticketMessage = ticketMessageService.findByTicketMessageId(ticketMessageId);
+        Ticket ticket = findById(ticketId);
+        User userAssignedToTicket = ticket.getEmployee();
+
+        if (userAssignedToTicket == null) {
+            throw new TicketHasNoAssignedUserException(ticketId);
+        }
+        if (!userAssignedToTicket.getId().equals(user.getId())) throw new UserNotAssignedException(user.getUsername(), ticketId);
+
+        LocalDateTime updatedAt = LocalDateTime.now(ZoneId.systemDefault());
+        ticket.setUpdatedAt(updatedAt);
+
+        TicketMessage employeeAnswer = new TicketMessage(ticket.getId(), user.getEmail(), ticket.getAnswer(), updatedAt, ticketMessage.getEmailMessageId(), null);
+
+        try {
+            String messageId = emailSenderService.sendAnswer(employeeAnswer, ticket);
+            employeeAnswer.setEmailMessageId(messageId);
+            ticket.setAnswer("");
+            ticketRepository.save(ticket);
+            TicketMessage savedEmployeeMessage = ticketMessageService.saveMessage(employeeAnswer);
+            return savedEmployeeMessage != null;
+
+        } catch(RuntimeException e) {
+            throw e;
+        }
+
+
+
+
+
+    }
 }

@@ -74,6 +74,29 @@ public class TicketController {
         }
     }
 
+    @PostMapping("/sendAnswer/{ticketId}/reply/{ticketMessageId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> sendAnswer(@PathVariable("ticketId") Long ticketId, @PathVariable("ticketMessageId") Long ticketMessageId,  Authentication authentication) {
+        try {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            User user = userService.findByUsername(userPrincipal.getUsername());
+
+            boolean sent = ticketService.sendAnswer(user, ticketId, ticketMessageId);
+
+            if(sent) {
+                return ResponseEntity.ok()
+                        .body(new MessageResponse("Answer was sent!"));
+            } else {
+                 return ResponseEntity.badRequest()
+                        .body(new MessageResponse("Answer couldn't be sent"));
+            }
+
+        } catch(TicketNotFoundException | UserNotFoundException | UserNotAssignedException e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse(e.getMessage()));
+        }
+    }
+
 
     @GetMapping("/getAllByStatus/{status}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")

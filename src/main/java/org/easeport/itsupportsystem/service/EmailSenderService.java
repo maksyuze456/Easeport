@@ -1,11 +1,14 @@
 package org.easeport.itsupportsystem.service;
 
 import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
+import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.easeport.itsupportsystem.model.Ticket;
+import org.easeport.itsupportsystem.model.mailRelated.TicketMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -55,4 +58,29 @@ public class EmailSenderService {
         return content.toString();
     }
 
+    public String sendAnswer(TicketMessage ticketMessage, Ticket ticket) {
+
+        try{
+            MimeMessage message = new MimeMessage(smtpSession);
+
+            message.setFrom(new InternetAddress("easeport.tickets@gmail.com"));
+            message.setRecipient(Message.RecipientType.TO, new InternetAddress(ticket.getFrom()));
+            message.setSubject("Re: " + ticket.getSubject());
+            message.setText(buildEnglishReplyContent(ticket));
+
+            message.setHeader("In-Reply-To", ticketMessage.getInReplyTo());
+            message.setHeader("References", ticketMessage.getInReplyTo());
+
+            Transport.send(message);
+
+            String messageId = message.getMessageID();
+
+            return messageId;
+
+
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 }

@@ -24,10 +24,14 @@ public class TicketMessageService {
         return savedMessage;
     }
 
-    public TicketMessage saveFirstMessage(TicketMessage ticketMessage) {
+    public TicketMessage saveMessage(TicketMessage ticketMessage) {
 
         return ticketMessageRepository.save(ticketMessage);
 
+    }
+
+    public TicketMessage findByTicketMessageId(Long ticketMessageId) {
+        return ticketMessageRepository.findById(ticketMessageId).orElseThrow();
     }
 
 
