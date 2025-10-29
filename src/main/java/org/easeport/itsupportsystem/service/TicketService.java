@@ -41,14 +41,6 @@ public class TicketService {
         Ticket savedTicket = ticketRepository.save(ticket);
 
 
-        String messageId = savedTicket.getMessageId();
-        System.out.println("MessageId: " + messageId);
-
-
-
-        TicketMessage ticketMessage = new TicketMessage(savedTicket.getId(), savedTicket.getFrom(), savedTicket.getBody(), savedTicket.getCreatedAt(), null, messageId);
-        ticketMessageService.saveMessage(ticketMessage);
-
         return ticketMapper.entityToResponseDto(savedTicket);
     }
 
