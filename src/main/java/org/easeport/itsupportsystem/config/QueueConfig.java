@@ -1,5 +1,6 @@
 package org.easeport.itsupportsystem.config;
 
+import org.easeport.itsupportsystem.model.mailRelated.QueuedEmail;
 import org.easeport.itsupportsystem.model.mailRelated.RawEmail;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class QueueConfig {
 
     @Bean
-    public BlockingQueue<RawEmail> emailQueue() {
+    public BlockingQueue<QueuedEmail> emailQueue() {
         return new LinkedBlockingQueue<>();
     }
 

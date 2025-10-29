@@ -46,7 +46,13 @@ public class RawEmail {
     }
 
     public String getFrom() {
-        return from;
+        if (from == null) return null;
+        int start = from.indexOf('<');
+        int end = from.indexOf('>');
+        if (start != -1 && end != -1 && end > start) {
+            return from.substring(start + 1, end).trim();
+        }
+        return from.trim();
     }
 
     public void setFrom(String from) {
