@@ -6,6 +6,12 @@ import org.easeport.itsupportsystem.repository.TicketMessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 public class TicketMessageService {
 
@@ -32,6 +38,17 @@ public class TicketMessageService {
 
     public TicketMessage findByTicketMessageId(Long ticketMessageId) {
         return ticketMessageRepository.findById(ticketMessageId).orElseThrow();
+    }
+    public List<TicketMessage> getTimeConversationByTicketId(Long ticketId) {
+        List<TicketMessage> ticketMessageList = ticketMessageRepository.findAllByTicketId(ticketId);
+
+        if(ticketMessageList.isEmpty()) {
+            return ticketMessageList;
+        }
+
+        return ticketMessageList.stream()
+                .sorted(Comparator.comparing(TicketMessage::getLocalDateTime))
+                .collect(Collectors.toList());
     }
 
 

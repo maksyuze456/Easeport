@@ -140,21 +140,38 @@ public class TicketService {
 
         TicketMessage employeeAnswer = new TicketMessage(ticket.getId(), user.getEmail(), ticket.getAnswer(), updatedAt, ticketMessage.getEmailMessageId(), null);
 
+        return processSendAnswer(ticket, employeeAnswer);
+    }
+
+    public boolean sendAnswer(User user, Long ticketId) {
+        Ticket ticket = findById(ticketId);
+        User userAssignedToTicket = ticket.getEmployee();
+
+        if (userAssignedToTicket == null) {
+            throw new TicketHasNoAssignedUserException(ticketId);
+        }
+        if (!userAssignedToTicket.getId().equals(user.getId())) throw new UserNotAssignedException(user.getUsername(), ticketId);
+
+        LocalDateTime updatedAt = LocalDateTime.now(ZoneId.systemDefault());
+        ticket.setUpdatedAt(updatedAt);
+
+        TicketMessage employeeMessage = new TicketMessage(ticket.getId(), user.getEmail(), ticket.getAnswer(), updatedAt, null, null);
+
+        return processSendAnswer(ticket, employeeMessage);
+    }
+
+    private boolean processSendAnswer(Ticket ticket, TicketMessage employeeMessage) {
         try {
-            String messageId = emailSenderService.sendAnswer(employeeAnswer, ticket);
-            employeeAnswer.setEmailMessageId(messageId);
+            String messageId = emailSenderService.sendAnswer(employeeMessage, ticket);
+            employeeMessage.setEmailMessageId(messageId);
             ticket.setAnswer("");
             ticketRepository.save(ticket);
-            TicketMessage savedEmployeeMessage = ticketMessageService.saveMessage(employeeAnswer);
-            return savedEmployeeMessage != null;
+            TicketMessage savedEmployeeMessage = ticketMessageService.saveMessage(employeeMessage);
 
+            return savedEmployeeMessage != null;
         } catch(RuntimeException e) {
             throw e;
         }
-
-
-
-
-
     }
+
 }

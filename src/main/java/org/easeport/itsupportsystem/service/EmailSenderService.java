@@ -10,6 +10,7 @@ import jakarta.mail.internet.MimeMessage;
 import org.easeport.itsupportsystem.model.Ticket;
 import org.easeport.itsupportsystem.model.mailRelated.TicketMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,8 @@ public class EmailSenderService {
 
     private final Session smtpSession;
 
+    @Value("${spring.mail.username}")
+    String username;
     public EmailSenderService(@Qualifier("smtpSession") Session smtpSession) {
         this.smtpSession = smtpSession;
     }
@@ -63,21 +66,19 @@ public class EmailSenderService {
         try{
             MimeMessage message = new MimeMessage(smtpSession);
 
-            message.setFrom(new InternetAddress("easeport.tickets@gmail.com"));
+            message.setFrom(new InternetAddress(username));
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(ticket.getFrom()));
             message.setSubject("Re: " + ticket.getSubject());
             message.setText(buildEnglishReplyContent(ticket));
 
-            message.setHeader("In-Reply-To", ticketMessage.getInReplyTo());
-            message.setHeader("References", ticketMessage.getInReplyTo());
-
+            if(ticketMessage.getInReplyTo() != null) {
+                message.setHeader("In-Reply-To", ticketMessage.getInReplyTo());
+                message.setHeader("References", ticketMessage.getInReplyTo());
+            }
             Transport.send(message);
-
             String messageId = message.getMessageID();
 
             return messageId;
-
-
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
