@@ -12,6 +12,7 @@ import org.easeport.itsupportsystem.model.ticketEnums.*;
 import org.easeport.itsupportsystem.repository.TicketRepository;
 import org.easeport.itsupportsystem.service.EmailSenderService;
 import org.easeport.itsupportsystem.service.TicketService;
+import org.easeport.itsupportsystem.service.WebSocketTicketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,9 @@ public class TicketServiceTest {
 
     @Mock
     EmailSenderService emailSenderService;
+
+    @Mock
+    WebSocketTicketService webSocketTicketService;
 
     @InjectMocks
     private TicketService ticketService;

@@ -3,7 +3,9 @@ package org.easeport.itsupportsystem.config;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import org.easeport.itsupportsystem.model.mailRelated.QueuedEmail;
 import org.easeport.itsupportsystem.model.mailRelated.RawEmail;
+import org.easeport.itsupportsystem.utility.EmailBodyCleaner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,9 +42,9 @@ public class MailIntegrationConfig {
     @Value("${spring.mail.smtp.password}")
     private String smtpPassword;
 
-    private final BlockingQueue<RawEmail> emailQueue;
+    private final BlockingQueue<QueuedEmail> emailQueue;
 
-    public MailIntegrationConfig(BlockingQueue<RawEmail> emailQueue) {
+    public MailIntegrationConfig(BlockingQueue<QueuedEmail> emailQueue) {
         this.emailQueue = emailQueue;
     }
 
@@ -117,6 +119,11 @@ public class MailIntegrationConfig {
         String subject = email.getSubject();
         String from = email.getFrom()[0].toString();
         Date date = email.getReceivedDate();
+        String[] inReplyHeaders = email.getHeader("In-Reply-To");
+        String inReplyTo = (inReplyHeaders != null && inReplyHeaders.length > 0)
+                ? inReplyHeaders[0]
+                : null;
+
         LocalDateTime localDateTime = date.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
@@ -129,15 +136,22 @@ public class MailIntegrationConfig {
         } else if (emailContent instanceof MimeMultipart) {
             content = extractTextFromMultipart((MimeMultipart) emailContent);
         }
+
+        String cleanedBody = EmailBodyCleaner.clean(content);
+
+
         System.out.println("=== EMAIL RECEIVED ===");
         System.out.println("Subject: " + subject);
         System.out.println("From: " + from);
         System.out.println("Content: " + content);
+        System.out.println("Cleaned body: " + cleanedBody);
         System.out.println("Time: " + localDateTime.toString());
         System.out.println("Message ID: " + messageId);
+        System.out.println("In reply to : " + inReplyTo);
         System.out.println("=====================");
-        RawEmail rawEmail = new RawEmail(subject, from, content, messageId, localDateTime);
-        boolean pooled = emailQueue.offer(rawEmail);
+        RawEmail rawEmail = new RawEmail(subject, from, cleanedBody, messageId, localDateTime);
+        QueuedEmail queuedEmail = new QueuedEmail(rawEmail, inReplyTo);
+        boolean pooled = emailQueue.offer(queuedEmail);
         System.out.println(pooled);
 
     }
