@@ -26,13 +26,12 @@ public class TicketService {
     TicketRepository ticketRepository;
     @Autowired
     public TicketMapper ticketMapper;
-
     @Autowired
     TicketMessageService ticketMessageService;
-
     @Autowired
     EmailSenderService emailSenderService;
-
+    @Autowired
+    WebSocketTicketService socketTicketService;
 
     public TicketResponseDto addTicket(TicketRequestDto requestDto) {
 
@@ -40,7 +39,7 @@ public class TicketService {
 
         Ticket savedTicket = ticketRepository.save(ticket);
 
-
+        socketTicketService.newTicket();
         return ticketMapper.entityToResponseDto(savedTicket);
     }
 
@@ -78,6 +77,7 @@ public class TicketService {
         LocalDateTime updatedAt = LocalDateTime.now(ZoneId.systemDefault());
         ticketToAssign.setUpdatedAt(updatedAt);
         Ticket updatedTicket = ticketRepository.save(ticketToAssign);
+        socketTicketService.newAssign();
         return ticketMapper.entityToResponseDto(updatedTicket);
     }
 
@@ -131,7 +131,7 @@ public class TicketService {
         ticket.setUpdatedAt(updatedAt);
 
         TicketMessage employeeAnswer = new TicketMessage(ticket.getId(), user.getEmail(), ticket.getAnswer(), updatedAt, ticketMessage.getEmailMessageId(), null);
-
+        socketTicketService.newTicketMessage(userAssignedToTicket.getUsername(), ticketId);
         return processSendAnswer(ticket, employeeAnswer);
     }
 
@@ -147,8 +147,8 @@ public class TicketService {
         LocalDateTime updatedAt = LocalDateTime.now(ZoneId.systemDefault());
         ticket.setUpdatedAt(updatedAt);
 
-        TicketMessage employeeMessage = new TicketMessage(ticket.getId(), user.getEmail(), ticket.getAnswer(), updatedAt, null, null);
-
+        TicketMessage employeeMessage = new TicketMessage(ticket.getId(), user.getUsername(), ticket.getAnswer(), updatedAt, null, null);
+        socketTicketService.newTicketMessage(userAssignedToTicket.getUsername(), ticketId);
         return processSendAnswer(ticket, employeeMessage);
     }
 
