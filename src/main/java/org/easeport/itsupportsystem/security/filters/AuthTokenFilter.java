@@ -34,6 +34,16 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+
+        if (path.startsWith("/ws")) {
+            System.out.println("SKIPPING /ws");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
         try{
 
             String jwt = Arrays.stream(request.getCookies())

@@ -3,6 +3,7 @@ package org.easeport.itsupportsystem.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.easeport.itsupportsystem.dto.TicketRequestDto;
 import org.easeport.itsupportsystem.model.Ticket;
+import org.easeport.itsupportsystem.model.User;
 import org.easeport.itsupportsystem.model.mailRelated.QueuedEmail;
 import org.easeport.itsupportsystem.model.mailRelated.RawEmail;
 import org.easeport.itsupportsystem.model.mailRelated.TicketMessage;
