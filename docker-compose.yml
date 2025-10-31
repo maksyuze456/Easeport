@@ -3,7 +3,7 @@ version: "3.8"
 services:
   spring-app:
     image: maksyuze456/easeport:staging
-    container_name: easeport-prod
+    container_name: easeport-staging
     working_dir: /app
     ports:
       - "8080:8080"
