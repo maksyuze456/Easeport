@@ -130,7 +130,7 @@ public class TicketService {
         LocalDateTime updatedAt = LocalDateTime.now(ZoneId.systemDefault());
         ticket.setUpdatedAt(updatedAt);
 
-        TicketMessage employeeAnswer = new TicketMessage(ticket.getId(), user.getEmail(), ticket.getAnswer(), updatedAt, ticketMessage.getEmailMessageId(), null);
+        TicketMessage employeeAnswer = new TicketMessage(ticket.getId(), user.getUsername(), ticket.getAnswer(), updatedAt, ticketMessage.getEmailMessageId(), null);
         socketTicketService.newTicketMessage(userAssignedToTicket.getUsername(), ticketId);
         return processSendAnswer(ticket, employeeAnswer);
     }
