@@ -24,6 +24,9 @@ public class TicketMessageService {
     @Autowired
     TicketMessageRepository ticketMessageRepository;
 
+    @Autowired
+    WebSocketTicketService socketTicketService;
+
 
     public TicketMessage findByMessageId(String inReplyTo) {
         return ticketMessageRepository.findByEmailMessageId(inReplyTo);
@@ -31,6 +34,7 @@ public class TicketMessageService {
 
     public TicketMessage saveNewMessage(Long ticketId, RawEmail rawEmail, String inReplyTo) {
         TicketMessage ticketMessage = new TicketMessage(ticketId, rawEmail.getFrom(), rawEmail.getContent(), rawEmail.getLocalDateTime(), inReplyTo, rawEmail.getMessageId());
+        socketTicketService.newTicketMessage(rawEmail.getFrom(), ticketId);
         TicketMessage savedMessage = ticketMessageRepository.save(ticketMessage);
         return savedMessage;
     }
