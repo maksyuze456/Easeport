@@ -31,14 +31,17 @@ public class EmailProcessingService {
 
             if (parentMessage != null) {
                 Long ticketId = parentMessage.getTicketId();
-                ticketMessageService.saveNewMessage(ticketId, rawEmail, inReplyTo);
+                Ticket topTicket = ticketService.findById(ticketId);
+                User user = topTicket.getEmployee();
+                ticketMessageService.saveNewMessage(ticketId, rawEmail, inReplyTo, user.getUsername());
                 return;
             }
 
             Ticket parentTicket = ticketService.findByMessageId(inReplyTo);
 
             if(parentTicket != null) {
-                ticketMessageService.saveNewMessage(parentTicket.getId(), rawEmail, inReplyTo);
+                User user = parentTicket.getEmployee();
+                ticketMessageService.saveNewMessage(parentTicket.getId(), rawEmail, inReplyTo, user.getUsername());
                 return;
             }
         }

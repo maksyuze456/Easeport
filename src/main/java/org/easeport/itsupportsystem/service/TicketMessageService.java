@@ -32,9 +32,9 @@ public class TicketMessageService {
         return ticketMessageRepository.findByEmailMessageId(inReplyTo);
     }
 
-    public TicketMessage saveNewMessage(Long ticketId, RawEmail rawEmail, String inReplyTo) {
+    public TicketMessage saveNewMessage(Long ticketId, RawEmail rawEmail, String inReplyTo, String employeeUsername) {
         TicketMessage ticketMessage = new TicketMessage(ticketId, rawEmail.getFrom(), rawEmail.getContent(), rawEmail.getLocalDateTime(), inReplyTo, rawEmail.getMessageId());
-        socketTicketService.newTicketMessage(rawEmail.getFrom(), ticketId);
+        socketTicketService.newTicketMessage(employeeUsername, ticketId);
         TicketMessage savedMessage = ticketMessageRepository.save(ticketMessage);
         return savedMessage;
     }
