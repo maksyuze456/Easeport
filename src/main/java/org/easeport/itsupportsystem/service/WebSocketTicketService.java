@@ -24,8 +24,8 @@ public class WebSocketTicketService {
         System.out.println("Sending ticket message to user: " + username);
         messagingTemplate.convertAndSendToUser(
                 username,
-                "/queue/ticket-messages",
-                new MessageResponse(String.valueOf(ticketId))
+                "/ticket-messages",
+                new MessageResponse("New ticket message in ticket with id " + ticketId)
         );
     }
 
