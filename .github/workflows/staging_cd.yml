@@ -97,8 +97,8 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
           cd ~/springapp
-          docker compose --project-name easeport_backend_staging down
+          docker compose -p easeport_backend_staging -f docker-compose.yml down
           docker compose pull
-          docker compose --project-name easeport_backend_staging up -d
+          docker compose -p easeport_backend_staging -f docker-compose.yml up -d
           docker system prune -f
           EOF
