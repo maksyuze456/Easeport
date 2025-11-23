@@ -1,5 +1,6 @@
 package org.easeport.itsupportsystem.unit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.easeport.itsupportsystem.dto.AnswerDto;
 import org.easeport.itsupportsystem.dto.TicketRequestDto;
 import org.easeport.itsupportsystem.dto.TicketResponseDto;
@@ -175,7 +176,7 @@ public class TicketServiceTest {
     }
 
     @Test
-    public void assignUserToTicket_shouldAssignUserToTicket_AndSetStatusReviewing(){
+    public void assignUserToTicket_shouldAssignUserToTicket_AndSetStatusReviewing() throws JsonProcessingException {
         User user = new User();
         user.setId(1L);
         Ticket ticket = new Ticket(2L,"VPN issue", "Bob", "bob@example.com",
@@ -256,7 +257,7 @@ public class TicketServiceTest {
     }
 
     @Test
-    public void addTicket_ShouldReturnResponseDtoAfterMappingRequestDto() {
+    public void addTicket_ShouldReturnResponseDtoAfterMappingRequestDto() throws JsonProcessingException {
 
         TicketRequestDto ticketRequestDto = new TicketRequestDto("VPN issue", "Bob",
                 "bob@example.com", "Unable to connect to VPN", TicketType.Problem, Queue.It_Support,

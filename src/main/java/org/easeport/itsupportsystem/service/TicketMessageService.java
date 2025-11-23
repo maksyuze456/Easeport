@@ -1,21 +1,14 @@
 package org.easeport.itsupportsystem.service;
 
-import org.easeport.itsupportsystem.exception.TicketHasNoAssignedUserException;
-import org.easeport.itsupportsystem.exception.UserNotAssignedException;
-import org.easeport.itsupportsystem.model.Ticket;
-import org.easeport.itsupportsystem.model.User;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.easeport.itsupportsystem.model.mailRelated.RawEmail;
 import org.easeport.itsupportsystem.model.mailRelated.TicketMessage;
 import org.easeport.itsupportsystem.repository.TicketMessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +18,8 @@ public class TicketMessageService {
     TicketMessageRepository ticketMessageRepository;
 
     @Autowired
-    WebSocketTicketService socketTicketService;
+    WebSocketTicketService webSocketTicketService;
+
 
 
     public TicketMessage findByMessageId(String inReplyTo) {
@@ -34,13 +28,14 @@ public class TicketMessageService {
 
     public TicketMessage saveNewMessage(Long ticketId, RawEmail rawEmail, String inReplyTo, String employeeUsername) {
         TicketMessage ticketMessage = new TicketMessage(ticketId, rawEmail.getFrom(), rawEmail.getContent(), rawEmail.getLocalDateTime(), inReplyTo, rawEmail.getMessageId());
-        socketTicketService.newTicketMessage(employeeUsername, ticketId);
         TicketMessage savedMessage = ticketMessageRepository.save(ticketMessage);
+        webSocketTicketService.newTicketMessage(employeeUsername, ticketId);
+
         return savedMessage;
     }
 
-    public TicketMessage saveMessage(TicketMessage ticketMessage) {
-
+    public TicketMessage saveMessage(String username, Long ticketId, TicketMessage ticketMessage) {
+        webSocketTicketService.newTicketMessage(username, ticketId);
         return ticketMessageRepository.save(ticketMessage);
     }
 

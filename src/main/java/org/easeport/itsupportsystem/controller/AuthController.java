@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.easeport.itsupportsystem.repository.UserRepository;
 import org.easeport.itsupportsystem.security.dto.JwtResponse;
 import org.easeport.itsupportsystem.security.dto.LoginRequest;
+import org.easeport.itsupportsystem.security.dto.MessageResponse;
 import org.easeport.itsupportsystem.security.security_entity.UserPrincipal;
 import org.easeport.itsupportsystem.security.utility.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class AuthController {
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
         if (authentication == null) {
-            return ResponseEntity.status(401).body("Not authenticated");
+            return ResponseEntity.status(401).body(new MessageResponse("Unathorized user!"));
         }
 
 

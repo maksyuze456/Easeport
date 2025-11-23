@@ -1,5 +1,6 @@
 package org.easeport.itsupportsystem.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.easeport.itsupportsystem.dto.AnswerDto;
 import org.easeport.itsupportsystem.dto.TicketRequestDto;
 import org.easeport.itsupportsystem.dto.TicketResponseDto;
@@ -33,7 +34,7 @@ public class TicketService {
     @Autowired
     WebSocketTicketService socketTicketService;
 
-    public TicketResponseDto addTicket(TicketRequestDto requestDto) {
+    public TicketResponseDto addTicket(TicketRequestDto requestDto) throws JsonProcessingException {
 
         Ticket ticket = ticketMapper.requestDtoToEntity(requestDto);
 
@@ -41,6 +42,10 @@ public class TicketService {
 
         socketTicketService.newTicket();
         return ticketMapper.entityToResponseDto(savedTicket);
+    }
+
+    public void initWs() throws JsonProcessingException {
+        socketTicketService.init();
     }
 
     public Ticket findById(Long ticketId) {
@@ -70,7 +75,7 @@ public class TicketService {
         return responseDto;
     }
 
-    public TicketResponseDto assignUserToTicket(Long ticketId, User user) {
+    public TicketResponseDto assignUserToTicket(Long ticketId, User user) throws JsonProcessingException {
         Ticket ticketToAssign = findById(ticketId);
         ticketToAssign.setEmployee(user);
         ticketToAssign.setStatus(TicketStatus.Reviewing);
@@ -78,6 +83,7 @@ public class TicketService {
         ticketToAssign.setUpdatedAt(updatedAt);
         Ticket updatedTicket = ticketRepository.save(ticketToAssign);
         socketTicketService.newAssign();
+        socketTicketService.newAssignToUser(user.getUsername());
         return ticketMapper.entityToResponseDto(updatedTicket);
     }
 
@@ -157,8 +163,9 @@ public class TicketService {
             String messageId = emailSenderService.sendAnswer(employeeMessage, ticket);
             employeeMessage.setEmailMessageId(messageId);
             ticket.setAnswer("");
+            User user = ticket.getEmployee();
             ticketRepository.save(ticket);
-            TicketMessage savedEmployeeMessage = ticketMessageService.saveMessage(employeeMessage);
+            TicketMessage savedEmployeeMessage = ticketMessageService.saveMessage(user.getUsername(), ticket.getId(), employeeMessage);
 
             return savedEmployeeMessage != null;
         } catch(RuntimeException e) {

@@ -36,7 +36,9 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
                         );
 
                 accessor.setUser(authentication);
+
                 System.out.println("STOMP user principal set for: " + username);
+
             }
         }
 

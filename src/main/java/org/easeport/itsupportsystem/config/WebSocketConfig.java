@@ -5,9 +5,8 @@ import org.easeport.itsupportsystem.websocket.JwtHandshakeInterceptor;
 import org.easeport.itsupportsystem.websocket.WebSocketAuthChannelInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -20,7 +19,6 @@ import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
-@Order(Ordered.HIGHEST_PRECEDENCE + 99)
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Autowired
@@ -34,9 +32,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     String allowedOrigin;
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/queue", "/user");
+        System.out.println("=== Configuring Message Broker ===");
+        config.enableSimpleBroker("/topic", "/queue")
+                .setTaskScheduler(taskScheduler())
+                .setHeartbeatValue(new long[]{10000, 10000}); // Send heartbeat every 10s, expect from client every 10s
         config.setApplicationDestinationPrefixes("/app");
         config.setUserDestinationPrefix("/user");
+    }
+
+    @Bean
+    public org.springframework.scheduling.TaskScheduler taskScheduler() {
+        org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler scheduler =
+            new org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(8);
+        scheduler.setThreadNamePrefix("ws-heartbeat-");
+        scheduler.initialize();
+        return scheduler;
     }
 
 
@@ -45,7 +56,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws")
                 .setAllowedOrigins(allowedOrigin)
                 .addInterceptors(jwtHandshakeInterceptor)
-                .withSockJS();
+                .withSockJS()
+                .setHeartbeatTime(10000); // SockJS heartbeat every 10s
     }
 
     @Override
