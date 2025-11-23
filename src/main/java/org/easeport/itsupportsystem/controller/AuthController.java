@@ -2,7 +2,6 @@ package org.easeport.itsupportsystem.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.easeport.itsupportsystem.repository.UserRepository;
-import org.easeport.itsupportsystem.security.dto.JwtResponse;
 import org.easeport.itsupportsystem.security.dto.LoginRequest;
 import org.easeport.itsupportsystem.security.dto.MessageResponse;
 import org.easeport.itsupportsystem.security.security_entity.UserPrincipal;
@@ -70,10 +69,9 @@ public class AuthController {
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
 
+
         return ResponseEntity.ok()
-                .body(new JwtResponse(jwt,
-                        userDetails.getUsername(),
-                        userDetails.getEmail()));
+                .body("Logged in");
     }
 
     @PostMapping("/logout")
