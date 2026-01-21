@@ -1,5 +1,6 @@
 package org.easeport.itsupportsystem.config;
 
+import org.easeport.itsupportsystem.features.notifications.model.Notification;
 import org.easeport.itsupportsystem.model.Role;
 import org.easeport.itsupportsystem.model.Ticket;
 import org.easeport.itsupportsystem.model.User;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,6 +54,8 @@ public class InitData implements CommandLineRunner {
         userRepository.save(u1);
         userRepository.save(u2);
         userRepository.save(u3);
+        Notification notification = new Notification(u4, "New", "New ticket boy.");
+        u4.addNotification(notification);
         userRepository.save(u4);
 
         List<Ticket> tickets = Arrays.asList(

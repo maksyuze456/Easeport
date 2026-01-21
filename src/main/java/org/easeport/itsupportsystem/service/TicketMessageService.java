@@ -1,6 +1,7 @@
 package org.easeport.itsupportsystem.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.easeport.itsupportsystem.features.notifications.dto.NotificationRequest;
+import org.easeport.itsupportsystem.features.notifications.service.NotificationsService;
 import org.easeport.itsupportsystem.model.mailRelated.RawEmail;
 import org.easeport.itsupportsystem.model.mailRelated.TicketMessage;
 import org.easeport.itsupportsystem.repository.TicketMessageRepository;
@@ -20,6 +21,9 @@ public class TicketMessageService {
     @Autowired
     WebSocketTicketService webSocketTicketService;
 
+    @Autowired
+    NotificationsService notificationsService;
+
 
 
     public TicketMessage findByMessageId(String inReplyTo) {
@@ -29,6 +33,8 @@ public class TicketMessageService {
     public TicketMessage saveNewMessage(Long ticketId, RawEmail rawEmail, String inReplyTo, String employeeUsername) {
         TicketMessage ticketMessage = new TicketMessage(ticketId, rawEmail.getFrom(), rawEmail.getContent(), rawEmail.getLocalDateTime(), inReplyTo, rawEmail.getMessageId());
         TicketMessage savedMessage = ticketMessageRepository.save(ticketMessage);
+        NotificationRequest notificationRequest = new NotificationRequest("Message", "Customer has replied in ticket with id " + ticketId, false);
+        notificationsService.createNotification(employeeUsername, notificationRequest);
         webSocketTicketService.newTicketMessage(employeeUsername, ticketId);
 
         return savedMessage;

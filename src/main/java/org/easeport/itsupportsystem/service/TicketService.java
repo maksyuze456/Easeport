@@ -111,8 +111,11 @@ public class TicketService {
             ticket.setClosedAt(closedAt);
             Ticket updatedTicket = ticketRepository.save(ticket);
             emailSenderService.sendMail(updatedTicket);
+            socketTicketService.updateUserTicket(user.getUsername());
         } catch (TicketNotFoundException | UserNotAssignedException | TicketHasNoAssignedUserException e) {
             throw e;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
 
 

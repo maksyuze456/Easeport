@@ -36,6 +36,16 @@ public class WebSocketTicketService {
         );
     }
 
+    public void updateUserTicket(String username) throws JsonProcessingException {
+        System.out.println("User ticket update");
+        String jsonMessage = objectMapper.writeValueAsString(new MessageResponse("Updates"));
+        messagingTemplate.convertAndSendToUser(
+                username,
+                "/queue/ticket",
+                jsonMessage
+        );
+    }
+
     public void newTicketMessage(String username, Long ticketId) {
         System.out.println("Sending ticket message to user: " + username);
         try {
@@ -45,6 +55,7 @@ public class WebSocketTicketService {
                     "/queue/ticket-messages",
                     jsonMessage
             );
+            System.out.println(jsonMessage);
         } catch (Exception e) {
 
         }
