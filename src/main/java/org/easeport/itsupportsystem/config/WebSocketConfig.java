@@ -53,11 +53,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // Raw WebSocket endpoint (preferred for modern browsers and mobile)
         registry.addEndpoint("/ws")
-                .setAllowedOrigins(allowedOrigin)
+                .setAllowedOrigins(allowedOrigin.split(","))
+                .addInterceptors(jwtHandshakeInterceptor);
+
+        // SockJS fallback endpoint
+        registry.addEndpoint("/ws-sockjs")
+                .setAllowedOrigins(allowedOrigin.split(","))
                 .addInterceptors(jwtHandshakeInterceptor)
                 .withSockJS()
-                .setHeartbeatTime(10000); // SockJS heartbeat every 10s
+                .setHeartbeatTime(10000);
     }
 
     @Override

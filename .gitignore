@@ -38,3 +38,5 @@ build/
 
 ### dev compose ###
 docker-compose.dev.yml
+
+.automaker

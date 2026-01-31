@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -31,6 +32,9 @@ public class AuthController {
     UserRepository userRepository;
     @Autowired
     JwtUtils jwtUtils;
+
+    @Value("${cookie.secure:true}")
+    private boolean cookieSecure;
 
 
     @GetMapping("/me")
@@ -63,7 +67,8 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("token", jwt)
                 .httpOnly(true)
-                .secure(false)// HTTPS
+                .secure(cookieSecure)
+                .sameSite(cookieSecure ? "None" : "Lax")
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 days
                 .build();
@@ -78,7 +83,8 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
+                .sameSite(cookieSecure ? "None" : "Lax")
                 .path("/")
                 .maxAge(0) // expires immediately
                 .build();
