@@ -5,6 +5,9 @@ services:
     image: maksyuze456/easeport:staging
     container_name: easeport-staging
     working_dir: /app
+    volumes:
+      - ./pom.xml:/app/pom.xml  # sync pom.xml so Maven picks up new dependencies
+      - ./src:/app/src  # sync source code into container
     ports:
       - "8080:8080"
     env_file: .env
@@ -21,6 +24,37 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+
+  prometheus:
+    image: prom/prometheus
+    container_name: easeport-prometheus
+    restart: always
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - spring-app
+
+  grafana:
+    image: grafana/grafana
+    container_name: easeport-grafana
+    restart: always
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
 volumes:
   mysql_data:
+  prometheus_data:
+  grafana_data:
 

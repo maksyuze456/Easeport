@@ -8,6 +8,7 @@ services:
     container_name: easeport-dev
     working_dir: /app
     volumes:
+      - ./pom.xml:/app/pom.xml  # sync pom.xml so Maven picks up new dependencies
       - ./src:/app/src  # local code into container
       - ./target:/app/target
       - ~/.m2:/root/.m2  # cache Maven dependencies
@@ -30,9 +31,44 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-        - dev-network
+      - dev-network
+
+  prometheus:
+    image: prom/prometheus
+    container_name: easeport-prometheus
+    restart: always
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - spring-app
+    networks:
+      - dev-network
+
+  grafana:
+    image: grafana/grafana
+    container_name: easeport-grafana
+    restart: always
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - dev-network
+
 volumes:
   mysql_data:
+  prometheus_data:
+  grafana_data:
 networks:
   dev-network:
     driver: bridge

@@ -45,8 +45,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 
         try{
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-            String jwt = Arrays.stream(request.getCookies())
+            String jwt = Arrays.stream(cookies)
                     .filter(c -> c.getName().equals("token"))
                     .map(Cookie::getValue)
                     .findFirst()
