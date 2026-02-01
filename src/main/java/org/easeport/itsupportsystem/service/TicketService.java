@@ -7,6 +7,8 @@ import org.easeport.itsupportsystem.dto.TicketResponseDto;
 import org.easeport.itsupportsystem.exception.TicketHasNoAssignedUserException;
 import org.easeport.itsupportsystem.exception.TicketNotFoundException;
 import org.easeport.itsupportsystem.exception.UserNotAssignedException;
+import org.easeport.itsupportsystem.logging.AuditEvent;
+import org.easeport.itsupportsystem.logging.service.AuditLogger;
 import org.easeport.itsupportsystem.mappers.TicketMapper;
 import org.easeport.itsupportsystem.model.Ticket;
 import org.easeport.itsupportsystem.model.User;
@@ -33,12 +35,23 @@ public class TicketService {
     EmailSenderService emailSenderService;
     @Autowired
     WebSocketTicketService socketTicketService;
+    @Autowired
+    AuditLogger auditLogger;
 
     public TicketResponseDto addTicket(TicketRequestDto requestDto) throws JsonProcessingException {
 
         Ticket ticket = ticketMapper.requestDtoToEntity(requestDto);
 
         Ticket savedTicket = ticketRepository.save(ticket);
+
+        auditLogger.log(new AuditEvent(
+                requestDto.from(),
+                "TICKET_CREATED",
+                "TICKET:" + savedTicket.getId(),
+                "SUCCESS",
+                null,
+                null
+        ));
 
         socketTicketService.newTicket();
         return ticketMapper.entityToResponseDto(savedTicket);
@@ -70,6 +83,16 @@ public class TicketService {
         ticket.setAnswer(answerDto.getMessage());
 
         Ticket updatedTicket = ticketRepository.save(ticket);
+
+        auditLogger.log(new AuditEvent(
+                user.getUsername(),
+                "TICKET_UPDATED",
+                "TICKET:" + ticketId,
+                "SUCCESS",
+                null,
+                null
+        ));
+
         TicketResponseDto responseDto = ticketMapper.entityToResponseDto(updatedTicket);
 
         return responseDto;
@@ -82,6 +105,16 @@ public class TicketService {
         LocalDateTime updatedAt = LocalDateTime.now(ZoneId.systemDefault());
         ticketToAssign.setUpdatedAt(updatedAt);
         Ticket updatedTicket = ticketRepository.save(ticketToAssign);
+
+        auditLogger.log(new AuditEvent(
+                user.getUsername(),
+                "TICKET_ASSIGNED",
+                "TICKET:" + ticketId,
+                "SUCCESS",
+                null,
+                null
+        ));
+
         socketTicketService.newAssign();
         socketTicketService.newAssignToUser(user.getUsername());
         return ticketMapper.entityToResponseDto(updatedTicket);
@@ -110,6 +143,16 @@ public class TicketService {
             LocalDateTime closedAt = LocalDateTime.now(ZoneId.systemDefault());
             ticket.setClosedAt(closedAt);
             Ticket updatedTicket = ticketRepository.save(ticket);
+
+            auditLogger.log(new AuditEvent(
+                    user.getUsername(),
+                    "TICKET_CLOSED",
+                    "TICKET:" + ticketId,
+                    "SUCCESS",
+                    null,
+                    null
+            ));
+
             emailSenderService.sendMail(updatedTicket);
             socketTicketService.updateUserTicket(user.getUsername());
         } catch (TicketNotFoundException | UserNotAssignedException | TicketHasNoAssignedUserException e) {
@@ -170,8 +213,25 @@ public class TicketService {
             ticketRepository.save(ticket);
             TicketMessage savedEmployeeMessage = ticketMessageService.saveMessage(user.getUsername(), ticket.getId(), employeeMessage);
 
+            auditLogger.log(new AuditEvent(
+                    user.getUsername(),
+                    "TICKET_ANSWER_SENT",
+                    "TICKET:" + ticket.getId(),
+                    "SUCCESS",
+                    null,
+                    null
+            ));
+
             return savedEmployeeMessage != null;
         } catch(RuntimeException e) {
+            auditLogger.log(new AuditEvent(
+                    ticket.getEmployee() != null ? ticket.getEmployee().getUsername() : "UNKNOWN",
+                    "TICKET_ANSWER_SENT",
+                    "TICKET:" + ticket.getId(),
+                    "FAILURE",
+                    null,
+                    null
+            ));
             throw e;
         }
     }

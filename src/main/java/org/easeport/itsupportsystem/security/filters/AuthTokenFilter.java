@@ -36,15 +36,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-
         if (path.startsWith("/ws")) {
-            System.out.println("SKIPPING /ws");
             filterChain.doFilter(request, response);
             return;
         }
 
-
-        try{
+        try {
             Cookie[] cookies = request.getCookies();
             if (cookies == null) {
                 filterChain.doFilter(request, response);
@@ -69,13 +66,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
-        }catch (Exception e) {
-            logger.error("Cannot set user authentication: {e}", e);
+        } catch (Exception e) {
+            logger.error("Cannot set user authentication: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
-
     }
-
-
 }

@@ -1,6 +1,9 @@
 package org.easeport.itsupportsystem.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.easeport.itsupportsystem.logging.AuditEvent;
+import org.easeport.itsupportsystem.logging.service.AuditLogger;
 import org.easeport.itsupportsystem.repository.UserRepository;
 import org.easeport.itsupportsystem.security.dto.LoginRequest;
 import org.easeport.itsupportsystem.security.dto.MessageResponse;
@@ -13,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +36,8 @@ public class AuthController {
     UserRepository userRepository;
     @Autowired
     JwtUtils jwtUtils;
+    @Autowired
+    AuditLogger auditLogger;
 
     @Value("${cookie.secure:true}")
     private boolean cookieSecure;
@@ -54,33 +60,60 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest,
+                                              HttpServletRequest request,
+                                              HttpServletResponse response) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken((UserDetails) authentication.getPrincipal());
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword())
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken((UserDetails) authentication.getPrincipal());
-        UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
+            ResponseCookie cookie = ResponseCookie.from("token", jwt)
+                    .httpOnly(true)
+                    .secure(cookieSecure)
+                    .sameSite(cookieSecure ? "None" : "Lax")
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60) // 7 days
+                    .build();
+            response.addHeader("Set-Cookie", cookie.toString());
 
-        ResponseCookie cookie = ResponseCookie.from("token", jwt)
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .sameSite(cookieSecure ? "None" : "Lax")
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60) // 7 days
-                .build();
-        response.addHeader("Set-Cookie", cookie.toString());
+            auditLogger.log(new AuditEvent(
+                    loginRequest.getUsername(),
+                    "LOGIN",
+                    "SESSION",
+                    "SUCCESS",
+                    request.getHeader("X-Correlation-Id"),
+                    request.getRemoteAddr()
+            ));
 
+            return ResponseEntity.ok()
+                    .body("Logged in");
 
-        return ResponseEntity.ok()
-                .body("Logged in");
+        } catch (AuthenticationException e) {
+            auditLogger.log(new AuditEvent(
+                    loginRequest.getUsername(),
+                    "LOGIN",
+                    "SESSION",
+                    "FAILURE",
+                    request.getHeader("X-Correlation-Id"),
+                    request.getRemoteAddr()
+            ));
+            throw e;
+        }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    Authentication authentication) {
+        String actor = (authentication != null && authentication.getPrincipal() instanceof UserPrincipal user)
+                ? user.getUsername()
+                : "UNKNOWN";
+
         ResponseCookie cookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
                 .secure(cookieSecure)
@@ -90,6 +123,15 @@ public class AuthController {
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
+
+        auditLogger.log(new AuditEvent(
+                actor,
+                "LOGOUT",
+                "SESSION",
+                "SUCCESS",
+                request.getHeader("X-Correlation-Id"),
+                request.getRemoteAddr()
+        ));
 
         return ResponseEntity.ok("Logged out successfully");
     }

@@ -8,12 +8,15 @@ services:
     volumes:
       - ./pom.xml:/app/pom.xml  # sync pom.xml so Maven picks up new dependencies
       - ./src:/app/src  # sync source code into container
+      - ./logs:/logs
     ports:
       - "8080:8080"
     env_file: .env
     depends_on:
       - mysql
     command: mvn spring-boot:run
+    networks:
+      - easeport-net
 
   mysql:
     image: mysql:8.0
@@ -24,6 +27,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - easeport-net
 
   prometheus:
     image: prom/prometheus
@@ -36,6 +41,34 @@ services:
       - "9090:9090"
     depends_on:
       - spring-app
+    networks:
+      - easeport-net
+
+  loki:
+    image: grafana/loki:3.3.2
+    container_name: easeport-loki
+    restart: always
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - easeport-net
+
+  promtail:
+    image: grafana/promtail:3.3.2
+    container_name: easeport-promtail
+    restart: always
+    volumes:
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml
+      - ./logs:/logs:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    networks:
+      - easeport-net
 
   grafana:
     image: grafana/grafana
@@ -47,14 +80,20 @@ services:
       - grafana_data:/var/lib/grafana
     ports:
       - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+    env_file: .env
     depends_on:
       - prometheus
+      - loki
+    networks:
+      - easeport-net
+
+networks:
+  easeport-net:
+    driver: bridge
 
 volumes:
   mysql_data:
   prometheus_data:
   grafana_data:
+  loki_data:
 

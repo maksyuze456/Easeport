@@ -40,3 +40,5 @@ build/
 docker-compose.dev.yml
 
 .automaker
+
+logs

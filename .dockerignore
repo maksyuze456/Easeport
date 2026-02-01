@@ -2,3 +2,6 @@ easeport-native
 .git
 .gitignore
 *.md
+
+logs/
+*.log
