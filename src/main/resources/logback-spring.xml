@@ -7,6 +7,7 @@
     <!-- Audit file appender - writes structured JSON to /logs/audit.log -->
     <appender name="AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/logs/audit.log</file>
+        <immediateFlush>true</immediateFlush>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/logs/audit-%d{yyyy-MM-dd}.log</fileNamePattern>
