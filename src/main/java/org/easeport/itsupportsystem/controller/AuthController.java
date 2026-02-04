@@ -90,8 +90,19 @@ public class AuthController {
                     request.getRemoteAddr()
             ));
 
+            // Return JWT token in response body for mobile apps (React Native Expo)
+            // Web clients can continue using the HTTP-only cookie
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             return ResponseEntity.ok()
-                    .body("Logged in");
+                    .body(Map.of(
+                            "message", "Logged in",
+                            "token", jwt,
+                            "user", Map.of(
+                                    "id", userPrincipal.getId(),
+                                    "username", userPrincipal.getUsername(),
+                                    "role", userPrincipal.getAuthorities().stream().findFirst().get().getAuthority()
+                            )
+                    ));
 
         } catch (AuthenticationException e) {
             auditLogger.log(new AuditEvent(

@@ -42,17 +42,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         }
 
         try {
-            Cookie[] cookies = request.getCookies();
-            if (cookies == null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            String jwt = Arrays.stream(cookies)
-                    .filter(c -> c.getName().equals("token"))
-                    .map(Cookie::getValue)
-                    .findFirst()
-                    .orElse(null);
+            String jwt = parseJwt(request);
 
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
 
@@ -71,5 +61,33 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Extracts JWT token from the request.
+     * Supports both:
+     * 1. Authorization header (Bearer token) - for mobile apps (React Native Expo)
+     * 2. HTTP-only cookies - for web browsers
+     *
+     * Authorization header takes precedence if both are present.
+     */
+    private String parseJwt(HttpServletRequest request) {
+        // First, try to get JWT from Authorization header (mobile apps)
+        String headerAuth = request.getHeader("Authorization");
+        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
+            return headerAuth.substring(7);
+        }
+
+        // Fallback to cookie-based auth (web browsers)
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            return Arrays.stream(cookies)
+                    .filter(c -> c.getName().equals("token"))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        return null;
     }
 }

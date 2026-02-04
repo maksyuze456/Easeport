@@ -25,21 +25,14 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
             HttpServletRequest httpRequest = servletRequest.getServletRequest();
 
-            Cookie[] cookies = httpRequest.getCookies();
-            if (cookies != null) {
-                String jwt = Arrays.stream(cookies)
-                        .filter(c -> c.getName().equals("token"))
-                        .map(Cookie::getValue)
-                        .findFirst()
-                        .orElse(null);
+            String jwt = parseJwtFromRequest(httpRequest);
 
-                if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-                    String username = jwtUtils.getUsernameFromJwtToken(jwt);
+            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+                String username = jwtUtils.getUsernameFromJwtToken(jwt);
 
-                    attributes.put("username", username);
-                    System.out.println("WebSocket handshake authenticated for user: " + username);
-                    return true;
-                }
+                attributes.put("username", username);
+                System.out.println("WebSocket handshake authenticated for user: " + username);
+                return true;
             }
 
             System.out.println("WebSocket handshake rejected: No valid JWT token");
@@ -47,6 +40,35 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         }
 
         return false;
+    }
+
+    /**
+     * Extracts JWT token from the WebSocket handshake request.
+     * Supports:
+     * 1. Query parameter 'token' - for mobile apps (React Native Expo)
+     *    Example: ws://server/ws?token=eyJhbGciOiJIUzUxMiJ9...
+     * 2. HTTP-only cookies - for web browsers
+     *
+     * Query parameter takes precedence if both are present.
+     */
+    private String parseJwtFromRequest(HttpServletRequest request) {
+        // First, try to get JWT from query parameter (mobile apps)
+        String tokenParam = request.getParameter("token");
+        if (tokenParam != null && !tokenParam.isEmpty()) {
+            return tokenParam;
+        }
+
+        // Fallback to cookie-based auth (web browsers)
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            return Arrays.stream(cookies)
+                    .filter(c -> c.getName().equals("token"))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        return null;
     }
 
     @Override
